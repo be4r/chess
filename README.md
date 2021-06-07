@@ -23,6 +23,22 @@
 [Ковальков Борис Юрьевич](https://github.com/be4r/)
 
 ---
-![*chess picture here*](https://upload.wikimedia.org/wikipedia/commons/c/c3/Chess_board_opening_staunton.jpg)
+### Макет:
 
+
+Сначала должно быть стартовое окно, позволяющее пользователю выбрать, хочет он играть с собой или не хочет. 
+
+И еще название игры, чтоб не забыть, что вообще происходит. Выглядит, приблизительно, так:
+
+![window1](./template/window1.png)
+
+Если пользователь все же решится играть с собой, он попадет на окно следующего вида: 
+
+~~извините, я не художник, а рисовать как-то нужно~~
+
+![window2](./template/window2.png)
+
+Оно должно моделировать шахматную доску из реального мира, которая в свою очередь выгядит так:
+
+![*chess picture here*](https://upload.wikimedia.org/wikipedia/commons/c/c3/Chess_board_opening_staunton.jpg)
 
