@@ -17,7 +17,9 @@ class Game(tk.Tk):
 		self.frame = tk.Frame(self)
 		self.frame.grid()
 
-		self.imgs = []
+		self.imgs_cache = []
+		self.imgs = {}
+		self.turn = {'stage': 0, 'x': 0, 'y': 0}
 
 		#self.board = Board()
 		board = [['rook0', 'knight0', 'bishop0', 'king0', 'queen0', 'bishop0', 'knight0', 'rook0'], 
@@ -41,13 +43,22 @@ class Game(tk.Tk):
 			'bishop1':'bishop_black.png', 'king1':'king_black.png', 
 			'queen1':'queen_black.png', 'pawn1':'pawn_black.png',
 			'e': 'empty.png'}
-		piece_img = 'imgs/%s' % pieces_imgs[piece]
-		img = ImageTk.PhotoImage(Image.open(piece_img).resize((100,100)), size=(100,100))
-		self.imgs.append(img)
-		self.canvas.create_image(coords[0] * grid_size, coords[1] * grid_size, anchor='nw',image=img)
+		piece_img_path = 'imgs/%s' % pieces_imgs[piece]
+		img = ImageTk.PhotoImage(Image.open(piece_img_path).resize((100,100)), size=(100,100))
+		self.imgs_cache.append(img)
+		piece_img = self.canvas.create_image(coords[0] * grid_size, coords[1] * grid_size, anchor='nw',image=img)
+		self.imgs[piece] = piece_img
+		self.canvas.tag_bind(piece_img, '<Button-1>', lambda e: self.select_tile(e))
 		self.canvas.grid()
 
-	def make_move(self):
+	def select_tile(self, event):
+		if self.turn['stage'] == 0:
+			self.turn['x'] = event.x // grid_size
+			self.turn['y'] = event.y // grid_size
+			self.turn['stage'] = 1
+		elif self.turn['stage'] == 1:
+			self.turn['stage'] = 0
+			print('moving %d %d to %d %d' % (self.turn['x'], self.turn['y'], event.x // grid_size, event.y // grid_size))
 		pass
 
 
