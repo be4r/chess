@@ -3,8 +3,9 @@ def check_if_move_correct(board, move):
         return True
     return False
 
-def add_move_to_board(self.board, move):
-    pass
+def add_move_to_board(board, move):
+    board.pieces_positions[move[1][0]][move[1][1]] = board.pieces_positions[move[0][0]][move[0][1]]
+    board.pieces_positions[move[0][0]][move[0][1]] = "empty" 
 
 def check_if_end_of_game(self.board, move):
     pass
@@ -63,9 +64,9 @@ class Board:
         piece_possible_moves = []
 
         if piece_name[:-1] == "pawn":
-            pass
+            piece_possible_moves = self.get_pawn_possible_moves(piece_raw_ind, piece_col_ind)
         elif piece_name[:-1] == "rook":
-            pass
+            piece_possible_moves = self.get_rook_possible_moves(piece_raw_ind, piece_col_ind)
         elif piece_name[:-1] == "king":
             pass
         elif piece_name[:-1] == "queen":
@@ -82,8 +83,58 @@ class Board:
 
         return checked_piece_possible_moves
 
-    def is_check_after_move(move):
+
+    def get_rook_possible_moves(self, piece_raw_ind, piece_col_ind):
+        rook_possible_moves = []
         
+        # Проверить все поля, находящиеся ниже ладьи
+        for current_raw_ind in range(piece_raw_ind + 1, 9):
+            if self.pieces_positions[current_raw_ind][piece_col_ind] == "empty":
+                rook_possible_moves.append(((piece_raw_ind, piece_col_ind),(current_raw_ind, piece_col_ind)))
+            elif int(self.pieces_positions[current_raw_ind][piece_col_ind][-1]) == self.active_player:
+                break
+            elif int(self.pieces_positions[current_raw_ind][piece_col_ind][-1]) == not self.active_player:
+                rook_possible_moves.append(((piece_raw_ind, piece_col_ind),(current_raw_ind, piece_col_ind)))
+                break            
+
+        # Проверить все поля, находящиеся выше ладьи
+        for current_raw_ind in range(piece_raw_ind - 1, -1, -1):
+            if self.pieces_positions[current_raw_ind][piece_col_ind] == "empty":
+                rook_possible_moves.append(((piece_raw_ind, piece_col_ind),(current_raw_ind, piece_col_ind)))
+            elif int(self.pieces_positions[current_raw_ind][piece_col_ind][-1]) == self.active_player:
+                break
+            elif int(self.pieces_positions[current_raw_ind][piece_col_ind][-1]) == not self.active_player:
+                rook_possible_moves.append(((piece_raw_ind, piece_col_ind),(current_raw_ind, piece_col_ind)))
+                break            
+
+        # Проверить все поля, находящиеся правее ладьи
+        for current_col_ind in range(piece_col_ind + 1, 9):
+            if self.pieces_positions[piece_raw_ind][current_col_ind] == "empty":
+                rook_possible_moves.append(((piece_raw_ind, piece_col_ind),(piece_raw_ind, current_col_ind)))
+            elif int(self.pieces_positions[piece_raw_ind][current_col_ind][-1]) == self.active_player:
+                break
+            elif int(self.pieces_positions[piece_raw_ind][current_col_ind][-1]) == not self.active_player:
+                rook_possible_moves.append(((piece_raw_ind, piece_col_ind),(piece_raw_ind, current_col_ind)))
+                break            
+
+        # Проверить все поля, находящиеся правее ладьи
+        for current_col_ind in range(piece_col_ind - 1, -1, -1):
+            if self.pieces_positions[piece_raw_ind][current_col_ind] == "empty":
+                rook_possible_moves.append(((piece_raw_ind, piece_col_ind),(piece_raw_ind, current_col_ind)))
+            elif int(self.pieces_positions[piece_raw_ind][current_col_ind][-1]) == self.active_player:
+                break
+            elif int(self.pieces_positions[piece_raw_ind][current_col_ind][-1]) == not self.active_player:
+                rook_possible_moves.append(((piece_raw_ind, piece_col_ind),(piece_raw_ind, current_col_ind)))
+                break    
+
+        return rook_possible_moves
+
+    def is_check_after_move(move):
+        saved_pieces_positions = self.pieces_positions
+        add_move_to_board(self, move)
+        is_check = check_if_check()
+        self.pieces_positions = saved_pieces_positions
+        return is_check
 
     def check_if_check(self):
         pass
