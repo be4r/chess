@@ -74,11 +74,11 @@ class Board:
         elif piece_name[:-1] == "rook":          
             piece_possible_moves = self.get_rook_possible_moves(piece_raw_ind, piece_col_ind)
         elif piece_name[:-1] == "king":
-            pass
+            piece_possible_moves = self.get_king_possible_moves(piece_raw_ind, piece_col_ind)
         elif piece_name[:-1] == "queen":
             piece_possible_moves = self.get_queen_possible_moves(piece_raw_ind, piece_col_ind)
         elif piece_name[:-1] == "knight":
-            pass
+            piece_possible_moves = self.get_knight_possible_moves(piece_raw_ind, piece_col_ind)
         elif piece_name[:-1] == "bishop":
             piece_possible_moves = self.get_bishop_possible_moves(piece_raw_ind, piece_col_ind)
         return piece_possible_moves
@@ -220,12 +220,36 @@ class Board:
                    ( 0, -1),          ( 0, 1),
                    ( 1, -1), ( 1, 0), ( 1, 1) 
                   ]
-        #for i, j in offsets:
+        
+        king_possible_moves = []
+        for raw_offset, col_offset in offsets:
+            new_raw_ind = piece_raw_ind + raw_offset
+            new_col_ind = piece_col_ind + col_offset
+            if 0 <= new_raw_ind <= 7 and 0 <= new_col_ind <= 7:
+                if self.pieces_positions[new_raw_ind][new_col_ind] == "empty" or\
+                    int(self.pieces_positions[new_raw_ind][new_col_ind][-1]) == 1 - self.active_player:
+                    king_possible_moves.append(((piece_raw_ind, piece_col_ind), (new_raw_ind, new_col_ind)))
+        return king_possible_moves    
             
     
 
     def get_knight_possible_moves(self, piece_raw_ind, piece_col_ind):
-        pass
+        offsets = [
+                   (-1, -2), (-2, -1),
+                   (-1,  2), (-2,  1),
+                   ( 1,  2), ( 2,  1),
+                   ( 1, -2), ( 2, -1)
+                  ]
+        
+        knight_possible_moves = []
+        for raw_offset, col_offset in offsets:
+            new_raw_ind = piece_raw_ind + raw_offset
+            new_col_ind = piece_col_ind + col_offset
+            if 0 <= new_raw_ind <= 7 and 0 <= new_col_ind <= 7:
+                if self.pieces_positions[new_raw_ind][new_col_ind] == "empty" or\
+                    int(self.pieces_positions[new_raw_ind][new_col_ind][-1]) == 1 - self.active_player:
+                    knight_possible_moves.append(((piece_raw_ind, piece_col_ind), (new_raw_ind, new_col_ind)))
+        return knight_possible_moves    
 
 
     
