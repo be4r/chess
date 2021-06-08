@@ -1,3 +1,5 @@
+import copy
+
 def check_if_move_correct(board, move):
     all_possible_moves = board.get_all_possible_moves()
     print(all_possible_moves)
@@ -11,7 +13,10 @@ def add_move_to_board(board, move):
     board.active_player = 1 - board.active_player
 
 def check_if_end_of_game(board, move):
-    pass
+    if not board.get_all_possible_moves():
+        print("HAHAHAHAHHAAHAH")
+        return True
+    return False
 
 
 class Board:
@@ -41,19 +46,19 @@ class Board:
     def get_pieces_positions(self):
         return self.pieces_positions
 
-    def get_all_possible_moves(self):
+    def get_all_possible_moves(self, check_for_check=True):
         '''
             Вычисление всех возможных ходов, которые может сделать игрок. Учитывается положение фигур на доске и очерёдность хода игроков. 
         '''
         all_possible_moves = []
         for piece_raw_ind in range(len(self.pieces_positions)):
             for piece_col_ind, piece_name in enumerate(self.pieces_positions[piece_raw_ind]):
-                piece_possible_moves = self.get_piece_possible_moves(piece_name, piece_raw_ind, piece_col_ind)
+                piece_possible_moves = self.get_piece_possible_moves(piece_name, piece_raw_ind, piece_col_ind, check_for_check=check_for_check)
                 all_possible_moves += piece_possible_moves
         return all_possible_moves
 
         
-    def get_piece_possible_moves(self, piece_name: str, piece_raw_ind: int, piece_col_ind: int):
+    def get_piece_possible_moves(self, piece_name: str, piece_raw_ind: int, piece_col_ind: int, check_for_check=True):
         '''
             Вычисление всех возможных ходов заданной фигуры.
             Учитывается то, что: 
@@ -81,7 +86,10 @@ class Board:
             piece_possible_moves = self.get_knight_possible_moves(piece_raw_ind, piece_col_ind)
         elif piece_name[:-1] == "bishop":
             piece_possible_moves = self.get_bishop_possible_moves(piece_raw_ind, piece_col_ind)
-        return piece_possible_moves
+       
+        if not check_for_check:
+            return piece_possible_moves
+            
         checked_piece_possible_moves = []
         for possible_move in piece_possible_moves:
             if not self.is_check_after_move(possible_move):
@@ -92,7 +100,7 @@ class Board:
         #    print(move)
         return checked_piece_possible_moves
 
-    def get_pawn_possible_moves(self, piece_raw_ind, piece_col_ind):
+    def get_pawn_possible_moves(self, piece_raw_ind: int, piece_col_ind: int):
         pawn_possible_moves = []        
         pawn_step = self.active_player * 2 - 1
 
@@ -118,7 +126,7 @@ class Board:
         return pawn_possible_moves            
 
 
-    def get_rook_possible_moves(self, piece_raw_ind, piece_col_ind):
+    def get_rook_possible_moves(self, piece_raw_ind: int, piece_col_ind: int):
         rook_possible_moves = []
         
         # Проверить все поля, находящиеся ниже ладьи
@@ -163,7 +171,7 @@ class Board:
 
         return rook_possible_moves
 
-    def get_bishop_possible_moves(self, piece_raw_ind, piece_col_ind):
+    def get_bishop_possible_moves(self, piece_raw_ind: int, piece_col_ind: int):
         bishop_possible_moves = []
         
         # Проверить все поля, находящиеся выше-слева слона
@@ -208,13 +216,13 @@ class Board:
 
         return bishop_possible_moves
 
-    def get_queen_possible_moves(self, piece_raw_ind, piece_col_ind):
+    def get_queen_possible_moves(self, piece_raw_ind: int, piece_col_ind: int):
         queen_possible_moves = []
         queen_possible_moves += self.get_rook_possible_moves(piece_raw_ind, piece_col_ind)
         queen_possible_moves += self.get_bishop_possible_moves(piece_raw_ind, piece_col_ind)
         return queen_possible_moves
 
-    def get_king_possible_moves(self, piece_raw_ind, piece_col_ind):
+    def get_king_possible_moves(self, piece_raw_ind: int, piece_col_ind: int):
         offsets = [
                    (-1, -1), (-1, 0), (-1, 1),
                    ( 0, -1),          ( 0, 1),
@@ -233,7 +241,7 @@ class Board:
             
     
 
-    def get_knight_possible_moves(self, piece_raw_ind, piece_col_ind):
+    def get_knight_possible_moves(self, piece_raw_ind: int, piece_col_ind: int):
         offsets = [
                    (-1, -2), (-2, -1),
                    (-1,  2), (-2,  1),
@@ -253,14 +261,39 @@ class Board:
 
 
     
-    def is_check_after_move(self, move):
-        saved_pieces_positions = self.pieces_positions
-        add_move_to_board(self, move)
-        is_check = self.check_if_check()
-        self.pieces_positions = saved_pieces_positions
+    def is_check_after_move(self, move: tuple):
+        virtual_board = copy.deepcopy(self)
+        # saved_pieces_positions = self.pieces_positions
+        add_move_to_board(virtual_board, move)
+        is_check = virtual_board.check_if_check()
+        #self.pieces_positions = saved_pieces_positions
         return is_check
 
     def check_if_check(self):
-        False
+        saved_active_player = self.active_player
+        #self.active_player = 1 - self.active_player
+        print(self.active_player)
+        possible_moves = self.get_all_possible_moves(check_for_check=False)
+        #self.active_player = saved_active_player
+        print(1 - saved_active_player)
+        king_position = self.find_king_position(1 - saved_active_player)
+        print(king_position)
+        for move in possible_moves:
+            if move[1] == king_position:
+                return True
+        return False
+
+
+    def find_king_position(self, player_id: int):
+        king_full_name = "king{}".format(player_id)
+        for raw_ind in range(len(self.pieces_positions)):
+            for col_ind, piece_name in enumerate(self.pieces_positions[raw_ind]):
+                if piece_name == king_full_name:
+                    return (raw_ind, col_ind) 
+
+
+
+
+
 
         
