@@ -11,6 +11,14 @@ from PIL import Image, ImageTk
 
 grid_size = 128
 
+class Board():
+	def get_pieces_positions(self):
+		return [['rook0', 'knight0', 'bishop0', 'king0', 'queen0', 'bishop0', 'knight0', 'rook0'], 
+			['pawn0', 'pawn0', 'pawn0', 'pawn0', 'pawn0', 'pawn0', 'pawn0', 'pawn0'], 
+			*[['empty'] * 8]*4, 
+			['pawn1', 'pawn1', 'pawn1', 'pawn1', 'pawn1', 'pawn1', 'pawn1', 'pawn1'], 
+			['rook1', 'knight1', 'bishop1', 'king1', 'queen1', 'bishop1', 'knight1', 'rook1']]
+
 class Game(tk.Tk):
 	'main class, descendant from tkinter'
 	def __init__(self):
@@ -34,13 +42,8 @@ class Game(tk.Tk):
 		self.imgs = []
 		self.turn = {'stage': 0, 'x': 0, 'y': 0}
 
-		#self.board = Board()
-		self.board =[['rook0', 'knight0', 'bishop0', 'king0', 'queen0', 'bishop0', 'knight0', 'rook0'], 
-			['pawn0', 'pawn0', 'pawn0', 'pawn0', 'pawn0', 'pawn0', 'pawn0', 'pawn0'], 
-			*[['e'] * 8]*4, 
-			['pawn1', 'pawn1', 'pawn1', 'pawn1', 'pawn1', 'pawn1', 'pawn1', 'pawn1'], 
-			['rook1', 'knight1', 'bishop1', 'king1', 'queen1', 'bishop1', 'knight1', 'rook1']]
-		self.redraw(self.board, False)
+		self.board = Board()
+		self.redraw(self.board.get_pieces_positions(), False)
 
 	def redraw(self, board, active):
 		'''
@@ -70,7 +73,7 @@ class Game(tk.Tk):
 				'rook1':'rook_black.png', 'knight1':'knight_black.png', 
 				'bishop1':'bishop_black.png', 'king1':'king_black.png', 
 				'queen1':'queen_black.png', 'pawn1':'pawn_black.png',
-				'e': 'empty.png'}
+				'empty': 'empty.png'}
 			piece_img_path = 'imgs/%s' % pieces_imgs[piece]
 			img = ImageTk.PhotoImage(Image.open(piece_img_path).resize((grid_size,grid_size)), size=(grid_size,grid_size))
 			self.imgs_cache[piece] = img
@@ -93,13 +96,12 @@ class Game(tk.Tk):
 			self.turn['x'] = event.x // grid_size
 			self.turn['y'] = event.y // grid_size
 			self.turn['stage'] = 1
-			self.redraw(self.board, True)
+			self.redraw(self.board.get_pieces_positions(), True)
 		elif self.turn['stage'] == 1:
 			# if its second click, send MOVE to backend
 			self.turn['stage'] = 0
-			move = (self.turn['x'], self.turn['y'],  event.x // grid_size, event.y // grid_size)
-			print('trying %d %d to %d %d' % move)
-			self.redraw(self.board, False)
+			move = ((self.turn['y'], self.turn['x']),  (event.y // grid_size, event.x // grid_size))
+			print('trying ', move)
 			# TODO: as backend gets implemented, add this
 			#if check_if_move_correct(self.board, move):
 			#	add_move_to_board(self.board, move)
@@ -108,6 +110,7 @@ class Game(tk.Tk):
 			msgbox.showerror(title='ATTENTION!', message='This move is prohibited!\nIts impossible!\n\nYOU DID BAD!')
 			#if check_if_end_of_game(self.board, move):
 			#	end_game()
+			self.redraw(self.board.get_pieces_positions(), False)
 		pass
 
 
