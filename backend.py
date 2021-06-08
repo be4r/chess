@@ -76,11 +76,11 @@ class Board:
         elif piece_name[:-1] == "king":
             pass
         elif piece_name[:-1] == "queen":
-            pass
+            piece_possible_moves = self.get_queen_possible_moves(piece_raw_ind, piece_col_ind)
         elif piece_name[:-1] == "knight":
             pass
         elif piece_name[:-1] == "bishop":
-            pass
+            piece_possible_moves = self.get_bishop_possible_moves(piece_raw_ind, piece_col_ind)
         return piece_possible_moves
         checked_piece_possible_moves = []
         for possible_move in piece_possible_moves:
@@ -214,7 +214,17 @@ class Board:
         return queen_possible_moves
 
     def get_king_possible_moves(self, piece_raw_ind, piece_col_ind):
-        
+        offsets = [
+                   (-1, -1), (-1, 0), (-1, 1),
+                   ( 0, -1),          ( 0, 1),
+                   ( 1, -1), ( 1, 0), ( 1, 1) 
+                  ]
+        #for i, j in offsets:
+            
+    
+
+    def get_knight_possible_moves(self, piece_raw_ind, piece_col_ind):
+        pass
 
 
     
