@@ -7,17 +7,9 @@ The module that manages frontend: all the drwaings and prettyness
 import tkinter as tk
 import tkinter.messagebox as msgbox
 from PIL import Image, ImageTk
-#from backend import check_if_move_correct, add_move_to_board, check_if_end_of_game, Board
+from backend import check_if_move_correct, add_move_to_board, check_if_end_of_game, Board
 
 grid_size = 128
-
-class Board():
-	def get_pieces_positions(self):
-		return [['rook0', 'knight0', 'bishop0', 'king0', 'queen0', 'bishop0', 'knight0', 'rook0'], 
-			['pawn0', 'pawn0', 'pawn0', 'pawn0', 'pawn0', 'pawn0', 'pawn0', 'pawn0'], 
-			*[['empty'] * 8]*4, 
-			['pawn1', 'pawn1', 'pawn1', 'pawn1', 'pawn1', 'pawn1', 'pawn1', 'pawn1'], 
-			['rook1', 'knight1', 'bishop1', 'king1', 'queen1', 'bishop1', 'knight1', 'rook1']]
 
 class Game(tk.Tk):
 	'main class, descendant from tkinter'
@@ -103,11 +95,11 @@ class Game(tk.Tk):
 			move = ((self.turn['y'], self.turn['x']),  (event.y // grid_size, event.x // grid_size))
 			print('trying ', move)
 			# TODO: as backend gets implemented, add this
-			#if check_if_move_correct(self.board, move):
-			#	add_move_to_board(self.board, move)
-			#else:
+			if check_if_move_correct(self.board, move):
+				add_move_to_board(self.board, move)
+			else:
 				# incorrect move
-			msgbox.showerror(title='ATTENTION!', message='This move is prohibited!\nIts impossible!\n\nYOU DID BAD!')
+				msgbox.showerror(title='ATTENTION!', message='This move is prohibited!\nIts impossible!\n\nYOU DID BAD!')
 			#if check_if_end_of_game(self.board, move):
 			#	end_game()
 			self.redraw(self.board.get_pieces_positions(), False)
