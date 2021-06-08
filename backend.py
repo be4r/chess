@@ -83,12 +83,31 @@ class Board:
 
         return checked_piece_possible_moves
 
+    def get_pawn_possible_moves(self, piece_raw_ind, piece_col_ind):
+        pawn_possible_moves = []        
+        pawn_step = self.active_player * 2 - 1
+
+        # Ход вперёд
+        pawn_possible_moves.append((piece_raw_ind, piece_col_ind), (piece_raw_ind + pawn_step, piece_col_ind))
+
+        # Поедание фигур справа-спереди и слева-спереди
+        if piece_col_ind != 7 and self.pieces_positions[piece_raw_ind + pawn_step][piece_col_ind + 1][-1] == not self.active_player:
+            pawn_possible_moves.append((piece_raw_ind, piece_col_ind), (piece_raw_ind + pawn_step, piece_col_ind + 1))
+        if piece_col_ind != 0 and self.pieces_positions[piece_raw_ind + pawn_step][piece_col_ind - 1][-1] == not self.active_player:
+            pawn_possible_moves.append((piece_raw_ind, piece_col_ind), (piece_raw_ind + pawn_step, piece_col_ind - 1))
+                           
+        # Первый ход пешки на 2 поля вперёд
+        if piece_raw_ind - pawn_step == 7 * (1 - self.active_player):
+            pawn_possible_moves.append((piece_raw_ind, piece_col_ind), (piece_raw_ind + 2 * pawn_step, piece_col_ind))
+            
+        return pawn_possible_moves            
+
 
     def get_rook_possible_moves(self, piece_raw_ind, piece_col_ind):
         rook_possible_moves = []
         
         # Проверить все поля, находящиеся ниже ладьи
-        for current_raw_ind in range(piece_raw_ind + 1, 9):
+        for current_raw_ind in range(piece_raw_ind + 1, 8):
             if self.pieces_positions[current_raw_ind][piece_col_ind] == "empty":
                 rook_possible_moves.append(((piece_raw_ind, piece_col_ind),(current_raw_ind, piece_col_ind)))
             elif int(self.pieces_positions[current_raw_ind][piece_col_ind][-1]) == self.active_player:
@@ -108,7 +127,7 @@ class Board:
                 break            
 
         # Проверить все поля, находящиеся правее ладьи
-        for current_col_ind in range(piece_col_ind + 1, 9):
+        for current_col_ind in range(piece_col_ind + 1, 8):
             if self.pieces_positions[piece_raw_ind][current_col_ind] == "empty":
                 rook_possible_moves.append(((piece_raw_ind, piece_col_ind),(piece_raw_ind, current_col_ind)))
             elif int(self.pieces_positions[piece_raw_ind][current_col_ind][-1]) == self.active_player:
