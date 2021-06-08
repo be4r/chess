@@ -1,5 +1,5 @@
-def check_if_move_correct(self.board, move):
-    if move in Board.get_all_possible_moves():    
+def check_if_move_correct(board, move):
+    if move in board.get_all_possible_moves():    
         return True
     return False
 
