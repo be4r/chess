@@ -97,7 +97,8 @@ class Board:
         pawn_step = self.active_player * 2 - 1
 
         # Ход вперёд
-        pawn_possible_moves.append(((piece_raw_ind, piece_col_ind), (piece_raw_ind + pawn_step, piece_col_ind)))
+        if self.pieces_positions[piece_raw_ind + pawn_step][piece_col_ind] == "empty":
+            pawn_possible_moves.append(((piece_raw_ind, piece_col_ind), (piece_raw_ind + pawn_step, piece_col_ind)))
 
         # Поедание фигур справа-спереди и слева-спереди
         if piece_col_ind != 7:
@@ -177,31 +178,31 @@ class Board:
 
         # Проверить все поля, находящиеся ниже-справа слона
         for offset in range(-1, -1 * min(7 - piece_raw_ind, 7 - piece_col_ind) - 1, -1):
-            if self.pieces_positions[piece_raw_ind + offset][piece_col_ind + offset] == "empty":
+            if self.pieces_positions[piece_raw_ind - offset][piece_col_ind - offset] == "empty":
                 bishop_possible_moves.append(((piece_raw_ind, piece_col_ind),(piece_raw_ind - offset, piece_col_ind - offset)))
-            elif int(self.pieces_positions[piece_raw_ind + offset][piece_col_ind + offset][-1]) == self.active_player:
+            elif int(self.pieces_positions[piece_raw_ind - offset][piece_col_ind - offset][-1]) == self.active_player:
                 break
-            elif int(self.pieces_positions[piece_raw_ind + offset][piece_col_ind + offset][-1]) == 1 - self.active_player:
+            elif int(self.pieces_positions[piece_raw_ind - offset][piece_col_ind - offset][-1]) == 1 - self.active_player:
                 bishop_possible_moves.append(((piece_raw_ind, piece_col_ind),(piece_raw_ind - offset, piece_col_ind - offset)))
                 break            
 
         # Проверить все поля, находящиеся ниже-слева слона
         for offset in range(-1, -1 * min(7 - piece_raw_ind, piece_col_ind) - 1, -1):
-            if self.pieces_positions[piece_raw_ind + offset][piece_col_ind + offset] == "empty":
+            if self.pieces_positions[piece_raw_ind - offset][piece_col_ind + offset] == "empty":
                 bishop_possible_moves.append(((piece_raw_ind, piece_col_ind),(piece_raw_ind - offset, piece_col_ind + offset)))
-            elif int(self.pieces_positions[piece_raw_ind + offset][piece_col_ind + offset][-1]) == self.active_player:
+            elif int(self.pieces_positions[piece_raw_ind - offset][piece_col_ind + offset][-1]) == self.active_player:
                 break
-            elif int(self.pieces_positions[piece_raw_ind + offset][piece_col_ind + offset][-1]) == 1 - self.active_player:
+            elif int(self.pieces_positions[piece_raw_ind - offset][piece_col_ind + offset][-1]) == 1 - self.active_player:
                 bishop_possible_moves.append(((piece_raw_ind, piece_col_ind),(piece_raw_ind - offset, piece_col_ind + offset)))
                 break            
 
         # Проверить все поля, находящиеся выше-справа слона
-        for offset in range(-1, -1 * min(piece_raw_ind, piece_col_ind) - 1, -1):
-            if self.pieces_positions[piece_raw_ind + offset][piece_col_ind + offset] == "empty":
+        for offset in range(-1, -1 * min(piece_raw_ind, 7 - piece_col_ind) - 1, -1):
+            if self.pieces_positions[piece_raw_ind + offset][piece_col_ind - offset] == "empty":
                 bishop_possible_moves.append(((piece_raw_ind, piece_col_ind),(piece_raw_ind + offset, piece_col_ind - offset)))
-            elif int(self.pieces_positions[piece_raw_ind + offset][piece_col_ind + offset][-1]) == self.active_player:
+            elif int(self.pieces_positions[piece_raw_ind + offset][piece_col_ind - offset][-1]) == self.active_player:
                 break
-            elif int(self.pieces_positions[piece_raw_ind + offset][piece_col_ind + offset][-1]) == 1 - self.active_player:
+            elif int(self.pieces_positions[piece_raw_ind + offset][piece_col_ind - offset][-1]) == 1 - self.active_player:
                 bishop_possible_moves.append(((piece_raw_ind, piece_col_ind),(piece_raw_ind + offset, piece_col_ind - offset)))
                 break            
 
