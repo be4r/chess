@@ -71,9 +71,8 @@ class Board:
 
         if piece_name[:-1] == "pawn":
             piece_possible_moves = self.get_pawn_possible_moves(piece_raw_ind, piece_col_ind)
-        elif piece_name[:-1] == "rook":
-            pass            
-            #piece_possible_moves = self.get_rook_possible_moves(piece_raw_ind, piece_col_ind)
+        elif piece_name[:-1] == "rook":          
+            piece_possible_moves = self.get_rook_possible_moves(piece_raw_ind, piece_col_ind)
         elif piece_name[:-1] == "king":
             pass
         elif piece_name[:-1] == "queen":
@@ -163,6 +162,62 @@ class Board:
 
         return rook_possible_moves
 
+    def get_bishop_possible_moves(self, piece_raw_ind, piece_col_ind):
+        bishop_possible_moves = []
+        
+        # Проверить все поля, находящиеся выше-слева слона
+        for offset in range(-1, -1 * min(piece_raw_ind, piece_col_ind) - 1, -1):
+            if self.pieces_positions[current_raw_ind][piece_col_ind] == "empty":
+                bishop_possible_moves.append(((piece_raw_ind, piece_col_ind),(piece_raw_ind + offset, piece_col_ind + offset)))
+            elif int(self.pieces_positions[current_raw_ind][piece_col_ind][-1]) == self.active_player:
+                break
+            elif int(self.pieces_positions[current_raw_ind][piece_col_ind][-1]) == 1 - self.active_player:
+                bishop_possible_moves.append(((piece_raw_ind, piece_col_ind),(piece_raw_ind + offset, piece_col_ind + offset)))
+                break            
+
+        # Проверить все поля, находящиеся ниже-справа слона
+        for offset in range(-1, -1 * min(7 - piece_raw_ind, 7 - piece_col_ind) - 1, -1):
+            if self.pieces_positions[current_raw_ind][piece_col_ind] == "empty":
+                bishop_possible_moves.append(((piece_raw_ind, piece_col_ind),(piece_raw_ind - offset, piece_col_ind - offset)))
+            elif int(self.pieces_positions[current_raw_ind][piece_col_ind][-1]) == self.active_player:
+                break
+            elif int(self.pieces_positions[current_raw_ind][piece_col_ind][-1]) == 1 - self.active_player:
+                bishop_possible_moves.append(((piece_raw_ind, piece_col_ind),(piece_raw_ind - offset, piece_col_ind - offset)))
+                break            
+
+        # Проверить все поля, находящиеся ниже-слева слона
+        for offset in range(-1, -1 * min(7 - piece_raw_ind, piece_col_ind) - 1, -1):
+            if self.pieces_positions[current_raw_ind][piece_col_ind] == "empty":
+                bishop_possible_moves.append(((piece_raw_ind, piece_col_ind),(piece_raw_ind - offset, piece_col_ind + offset)))
+            elif int(self.pieces_positions[current_raw_ind][piece_col_ind][-1]) == self.active_player:
+                break
+            elif int(self.pieces_positions[current_raw_ind][piece_col_ind][-1]) == 1 - self.active_player:
+                bishop_possible_moves.append(((piece_raw_ind, piece_col_ind),(piece_raw_ind - offset, piece_col_ind + offset)))
+                break            
+
+        # Проверить все поля, находящиеся выше-справа слона
+        for offset in range(-1, -1 * min(piece_raw_ind, piece_col_ind) - 1, -1):
+            if self.pieces_positions[current_raw_ind][piece_col_ind] == "empty":
+                bishop_possible_moves.append(((piece_raw_ind, piece_col_ind),(piece_raw_ind + offset, piece_col_ind - offset)))
+            elif int(self.pieces_positions[current_raw_ind][piece_col_ind][-1]) == self.active_player:
+                break
+            elif int(self.pieces_positions[current_raw_ind][piece_col_ind][-1]) == 1 - self.active_player:
+                bishop_possible_moves.append(((piece_raw_ind, piece_col_ind),(piece_raw_ind + offset, piece_col_ind - offset)))
+                break            
+
+        return bishop_possible_moves
+
+    def get_queen_possible_moves(self, piece_raw_ind, piece_col_ind):
+        queen_possible_moves = []
+        queen_possible_moves += self.get_rook_possible_moves(piece_raw_ind, piece_col_ind)
+        queen_possible_moves += self.get_bishop_possible_moves(piece_raw_ind, piece_col_ind)
+        return queen_possible_moves
+
+    def get_king_possible_moves(self, piece_raw_ind, piece_col_ind):
+        
+
+
+    
     def is_check_after_move(self, move):
         saved_pieces_positions = self.pieces_positions
         add_move_to_board(self, move)
