@@ -5,11 +5,13 @@ The module that manages frontend: all the drwaings and prettyness
 '''
 
 import tkinter as tk
+import tkinter.font as font
 import tkinter.messagebox as msgbox
 from PIL import Image, ImageTk
 from backend import check_if_move_correct, add_move_to_board, check_if_end_of_game, Board
 
-grid_size = 128
+grid_size = 96
+turn_black = False
 
 class Game(tk.Tk):
 	'main class, descendant from tkinter'
@@ -25,11 +27,16 @@ class Game(tk.Tk):
 			self.columnconfigure(i, weight=1)
 		self.minsize(*(grid_size * 8,)*2)
 
-		self.canvas = tk.Canvas(self, height = grid_size * 8, width = grid_size * 8)
-		self.canvas.grid()
 		self.frame = tk.Frame(self)
 		self.frame.grid()
+		self.turn_label = tk.Label(self.frame, relief = tk.RAISED, 
+			font = font.Font(family="Lucida Grande", size=40),text='Ходят белые')
+		self.turn_label.place(x = 200, y = 200)
+		self.turn_label.grid()
+		self.canvas = tk.Canvas(self, height = grid_size * 8, width = grid_size * 8)
+		self.canvas.grid()
 
+		# vars
 		self.imgs_cache = {}
 		self.imgs = []
 		self.turn = {'stage': 0, 'x': 0, 'y': 0}
@@ -94,7 +101,6 @@ class Game(tk.Tk):
 			self.turn['stage'] = 0
 			move = ((self.turn['y'], self.turn['x']),  (event.y // grid_size, event.x // grid_size))
 			print('trying ', move)
-			# TODO: as backend gets implemented, add this
 			if check_if_move_correct(self.board, move):
 				add_move_to_board(self.board, move)
 			else:
@@ -102,6 +108,10 @@ class Game(tk.Tk):
 				msgbox.showerror(title='ATTENTION!', message='This move is prohibited!\nIts impossible!\n\nYOU DID BAD!')
 			#if check_if_end_of_game(self.board, move):
 			#	end_game()
+			# redraw and stuff
+			global turn_black
+			turn_black = not turn_black
+			self.turn_label.configure(text = 'Ходят черные' if turn_black else 'Ходят белые')
 			self.redraw(self.board.get_pieces_positions(), False)
 		pass
 
