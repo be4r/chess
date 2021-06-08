@@ -1,3 +1,9 @@
+'''
+The module that manages frontend: all the drwaings and prettyness
+:copyright: (c) copyleft (R), 2021
+:license: GNU GPL
+'''
+
 import tkinter as tk
 import tkinter.messagebox as msgbox
 from PIL import Image, ImageTk
@@ -6,7 +12,13 @@ from PIL import Image, ImageTk
 grid_size = 128
 
 class Game(tk.Tk):
+	'main class, descendant from tkinter'
 	def __init__(self):
+		'''
+		Constructor
+		:param self: because this is methor
+		:return: idk nothing
+		'''
 		super().__init__()
 		for i in range(8):
 			self.rowconfigure(i, weight=1)
@@ -31,6 +43,12 @@ class Game(tk.Tk):
 		self.redraw(self.board, False)
 
 	def redraw(self, board, active):
+		'''
+		Redrawd board-field
+
+		:param board: matrix of chess figures
+		:param active: type `bool`
+		'''
 		# idk where to put next 3 lines :D
 		if 'empty2' not in self.imgs_cache:
 			img = ImageTk.PhotoImage(Image.open('imgs/empty2.png').resize((grid_size,grid_size)), size=(grid_size,grid_size))
