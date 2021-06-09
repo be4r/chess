@@ -20,6 +20,7 @@ def add_move_to_board(board, move):
     board.pieces_positions[move[0][0]][move[0][1]] = "empty"
     last_pawn_position = board.check_pawns()
     board.active_player = 1 - board.active_player
+    board.previous_move = move
     return last_pawn_position
 
 def check_if_end_of_game(board, move):
@@ -67,9 +68,9 @@ class Board:
         for col_ind in range(8):
             if self.pieces_positions[last_raw_ind][col_ind] == "pawn{}".format(self.active_player):
                 print("|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n")
-                return True
+                return (last_raw_ind, col_ind)
 
-        return False
+        return None
     
     def change_piece(self, position, new_piece_name):
         '''
@@ -174,6 +175,14 @@ class Board:
         if piece_raw_ind - pawn_step == 7 * (1 - self.active_player):
             pawn_possible_moves.append(((piece_raw_ind, piece_col_ind), (piece_raw_ind + 2 * pawn_step, piece_col_ind)))
             
+        # Правило съедания пешки "на проходе"
+        if piece_raw_ind == 7 * self.active_player - 3 * pawn_step and\
+            self.pieces_positions[self.previous_move[1][0]][self.previous_move[1][1]] == "pawn{}".format(1 - self.active_player) and\
+            abs(self.previous_move[1][0] - self.previous_move[0][0]) == 2 and abs(self.previous_move[1][1] - piece_col_ind) == 1:
+                pawn_possible_moves.append(((piece_raw_ind, piece_col_ind), (piece_raw_ind + pawn_step, self.previous_move[1][1]))) 
+            
+
+
         return pawn_possible_moves            
 
 
