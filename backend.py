@@ -13,18 +13,27 @@ def check_if_move_correct(board, move):
 def add_move_to_board(board, move):
     '''
         Добавление одного хода на доску. Предполагается, что этот ход корректен. В данной функции нет проверки корректности хода.
+        Функция также проверяет, дошла ли какая-либо пешка на данном ходе до "дамок". Если дошла, то функция возвращает
+        координаты этой пешки. Если ни одна пешка до "дамок" не дошла, то возвращается None
     '''
     board.pieces_positions[move[1][0]][move[1][1]] = board.pieces_positions[move[0][0]][move[0][1]]
-    board.pieces_positions[move[0][0]][move[0][1]] = "empty" 
+    board.pieces_positions[move[0][0]][move[0][1]] = "empty"
+    last_pawn_position = board.check_pawns()
     board.active_player = 1 - board.active_player
+    return last_pawn_position
 
 def check_if_end_of_game(board, move):
+    '''
+        Проверка того, случился ли мат или пат.
+    '''
     if not board.get_all_possible_moves():
         print("HAHAHAHAHHAAHAH")
         if board.check_if_check():
-            return True, 'mate'
-        else
-            return True, 'pate'
+            # Мат            
+            return True, 'checkmate'
+        else:
+            # Пат
+            return True, 'stalemate'
     return False
 
 
@@ -50,6 +59,39 @@ class Board:
         self.is_check = False
         self.is_mate = False
         self.active_player = 0
+
+        self.previous_move = None
+
+    def check_pawns(self):
+        last_raw_ind =  7 * self.active_player
+        for col_ind in range(8):
+            if self.pieces_positions[last_raw_ind][col_ind] == "pawn{}".format(self.active_player):
+                print("|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n")
+                return True
+
+        return False
+    
+    def change_piece(self, position, new_piece_name):
+        '''
+            Замена фигуры на другую фигуру того же цвета.
+        '''
+        prev_piece_name = self.pieces_positions[position[0]][position[1]]
+        if prev_piece_name == "empty":
+            print("На данной позиции нет фигуры!")
+            return
+        if new_piece_name[-1] == '0' or new_piece_name[-1] == '1':
+            self.pieces_positions[position[0]][position[1]] = new_piece_name
+        else:
+            self.pieces_positions[position[0]][position[1]] = new_piece_name + prev_piece_name[-1]
+
+    def change_pawn(self, position, new_piece_name):
+        if new_piece_name == "queen" or new_piece_name == "rook" or new_piece_name == "bishop" or\
+            new_piece_name == "knight":
+            self.change_piece(self, position, new_piece_name)
+        else:
+            print("Вы пытаетесь заменить пешку на какую-то странную фигуру ({}).".format(new_piece_name))
+            print("Её можно заменить только на королеву (queen), ладью (rook), слона (bishop) и коня (knight).")         
+
 
 
     def get_pieces_positions(self):
