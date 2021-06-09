@@ -187,6 +187,20 @@ class Game(tk.Tk):
 			else:
 				# redraw and stuff
 				self.redraw(self.board.get_pieces_positions(), False)
+				print(self.board.check_if_check())
+				if self.board.check_if_check():
+					print('IF CHECK!')
+					# load check img
+					self.imgs_cache['check'] = ImageTk.PhotoImage(Image.open('imgs/uniq/check.png').resize((grid_size,grid_size)), size=(grid_size,grid_size))
+					# find king
+					piece = 'king%d' % int(self.board.active_player)
+					for x, line in enumerate(self.board.get_pieces_positions()):
+						for y, i in enumerate(line):
+							if i == piece:
+								self.check_img = self.canvas.create_image(x * grid_size, y * grid_size, image = self.imgs_cache['check'], anchor = 'nw')
+				#else:
+				#	self.canvas.delete(self.check_img)
+					# draw uniq/check on king
 			if pawn_pos:
 				answer = self.pawn_change_ask(pawn_pos)
 		pass
