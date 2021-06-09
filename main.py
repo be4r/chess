@@ -12,7 +12,6 @@ from PIL import Image, ImageTk
 from backend import check_if_move_correct, add_move_to_board, check_if_end_of_game, Board
 
 grid_size = 96
-turn_black = False
 
 class Game(tk.Tk):
 	'main class, descendant from tkinter'
@@ -88,9 +87,7 @@ class Game(tk.Tk):
 		self.canvas.grid()
 
 	def make_move(self, move):
-		global turn_black
-		turn_black = not turn_black
-		self.turn_label.configure(text = 'Ходят черные' if turn_black else 'Ходят белые')
+		self.turn_label.configure(text = 'Ходят белые' if self.board.active_player else 'Ходят черные')
 		playsound('sound/press2.mp3')
 		pawn_pos = add_move_to_board(self.board, move)
 		if pawn_pos:
@@ -98,16 +95,19 @@ class Game(tk.Tk):
 			self.board.change_pawn(pawn_pos, answer)
 	
 	def pawn_change_ask(self, pos):
+		self.turn_label.configure(text =  'Выберите фигуру:')
 		sizes = (6 * grid_size, 2 * grid_size)
 		self.choose_image = ImageTk.PhotoImage(Image.open('imgs/choose.png').resize(sizes), size = sizes)
 		self.canvas.create_image(1 * grid_size, 3 * grid_size, image = self.choose_image, anchor='nw')
-		queen = self.canvas.create_image(1.25 * grid_size, 3.5 * grid_size, image = self.imgs_cache['queen0'], anchor = 'nw')
-		bishop = self.canvas.create_image(2.75 * grid_size, 3.5 * grid_size, image = self.imgs_cache['bishop0'], anchor = 'nw')
-		knight = self.canvas.create_image(4.25 * grid_size, 3.5 * grid_size, image = self.imgs_cache['knight0'], anchor = 'nw')
-		rook = self.canvas.create_image(5.75 * grid_size, 3.5 * grid_size, image = self.imgs_cache['rook0'], anchor = 'nw')
+		q = 0 if self.board.active_player else 1
+		queen = self.canvas.create_image(1.25 * grid_size, 3.5 * grid_size, image = self.imgs_cache['queen%d' % q], anchor = 'nw')
+		bishop = self.canvas.create_image(2.75 * grid_size, 3.5 * grid_size, image = self.imgs_cache['bishop%d' % q], anchor = 'nw')
+		knight = self.canvas.create_image(4.25 * grid_size, 3.5 * grid_size, image = self.imgs_cache['knight%d' % q], anchor = 'nw')
+		rook = self.canvas.create_image(5.75 * grid_size, 3.5 * grid_size, image = self.imgs_cache['rook%d' % q], anchor = 'nw')
 		def set_answer(answer):
 			for i in self.canvas.find_all()[-5:]:
 				self.canvas.delete(i)
+			self.turn_label.configure(text = 'Ходят белые' if not self.board.active_player else 'Ходят черные')
 			print(answer, pos)
 		self.canvas.tag_bind(queen, '<Button-1>', lambda e: set_answer('queen'))
 		self.canvas.tag_bind(bishop, '<Button-1>', lambda e: set_answer('bishop'))
@@ -120,15 +120,16 @@ class Game(tk.Tk):
 
 	def select_tile(self, event):
 		if self.turn['stage'] == 0:
-			playsound('sound/press1.mp3')
 			# if its first click
 			# get tile number from coords
-			self.turn['x'] = event.x // grid_size
-			self.turn['y'] = event.y // grid_size
+			x = self.turn['x'] = event.x // grid_size
+			y = self.turn['y'] = event.y // grid_size
 			# if selected white on black turn or other side around
-			if (self.board.get_pieces_positions()[self.turn['x']][self.turn['y']][-1] == '1') ^ turn_black:
+			print('qqq: ', self.board.get_pieces_positions()[self.turn['y']][self.turn['x']][-1])
+			if ((self.board.get_pieces_positions()[y][x][-1] != '0') and not self.board.active_player) or ((self.board.get_pieces_positions()[y][x][-1] != '1') and self.board.active_player):
 				print('wrong color')
 				return
+			playsound('sound/press1.mp3')
 			self.turn['stage'] = 1
 			self.redraw(self.board.get_pieces_positions(), True)
 		elif self.turn['stage'] == 1:
