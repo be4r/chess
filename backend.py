@@ -34,7 +34,7 @@ def check_if_end_of_game(board, move):
         else:
             # Пат
             return True, 'stalemate'
-    return False
+    return False, None
 
 
 class Board:
