@@ -7,11 +7,21 @@ The module that manages frontend: all the drwaings and prettyness
 import tkinter as tk
 import tkinter.font as font
 import tkinter.messagebox as msgbox
-from playsound import playsound
+from threading import Thread
+from playsound import playsound as play_sound
 from PIL import Image, ImageTk
 from backend import check_if_move_correct, add_move_to_board, check_if_end_of_game, Board
 
 grid_size = 96
+
+def playsound(filename):
+	'''
+	Plays sound asynchronically (now thats not an easy word sorry for misspelling 2lazy2google)
+	:param filename: name of sound file to play
+	returns None
+	'''
+	t = Thread(target = lambda: play_sound(filename))
+	t.start()
 
 class Game(tk.Tk):
 	'main class, descendant from tkinter'
@@ -117,11 +127,24 @@ class Game(tk.Tk):
 
 	def end_game(self, end_type):
 		print('WIN!')
-		bishop = self.canvas.create_image(2.75 * grid_size, 3.5 * grid_size, image = self.imgs_cache['bishop0'], anchor = 'nw')
 		self.allow_select_pieces = False
-		self.end_img = ImageTk.PhotoImage(Image.open('imgs/mate.png').resize((grid_size * 8, grid_size * 8)), size=(grid_size * 8, grid_size * 8))
-		piece_img = self.canvas.create_image(0, 0, anchor='nw',image = self.end_img)
-		self.turn_label.configure(text = 'Победа! %s' % end_type)
+		if end_type == 'checkmate0':
+			self.end_img = ImageTk.PhotoImage(Image.open('imgs/win.png').resize((grid_size * 12, grid_size * 12)), size=(grid_size * 12, grid_size * 12))
+			piece_img = self.canvas.create_image(4 * grid_size, 4 * grid_size, image = self.end_img)
+			self.canvas.grid()
+			self.turn_label.configure(text = 'Победа!')
+			playsound('sound/win.mp3')
+		elif end_type == 'checkmate1':
+			self.end_img = ImageTk.PhotoImage(Image.open('imgs/lose.png').resize((grid_size * 8, grid_size * 8)), size=(grid_size * 8, grid_size * 8))
+			piece_img = self.canvas.create_image(4 * grid_size, 4 * grid_size, image = self.end_img)
+			self.turn_label.configure(text = 'Поражение . . . . . . . ')
+			playsound('sound/lose.mp3')
+		else: # stalemate
+			self.end_img = ImageTk.PhotoImage(Image.open('imgs/pat.png').resize((grid_size * 8, grid_size * 8)), size=(grid_size * 8, grid_size * 8))
+			piece_img = self.canvas.create_image(4 * grid_size, 4 * grid_size, image = self.end_img)
+			self.turn_label.configure(text = 'Патовая ситуация')
+			playsound('sound/pat.mp3')
+			
 
 	def select_tile(self, event):
 		if self.allow_select_pieces == False:
