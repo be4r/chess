@@ -5,7 +5,8 @@ def check_if_move_correct(board, move):
         Проверка корректности хода, сделанного пользователем
     '''
     all_possible_moves = board.get_all_possible_moves()
-    print(all_possible_moves)
+    if board.debug:    
+        print(all_possible_moves)
     if move in all_possible_moves:    
         return True
     return False
@@ -16,11 +17,53 @@ def add_move_to_board(board, move):
         Функция также проверяет, дошла ли какая-либо пешка на данном ходе до "дамок". Если дошла, то функция возвращает
         координаты этой пешки. Если ни одна пешка до "дамок" не дошла, то возвращается None
     '''
+    # Поддержание состояний короля и ладий. Потребуется для проверки корректности рокировки
+    if board.pieces_positions[move[0][0]][move[0][1]][:-1] == "king":
+        board.king_moved[board.active_player] = True
+    if board.pieces_positions[move[0][0]][move[0][1]][:-1] == "rook":
+        if move[0][1] == 0 and move[0][0] == 7 * (1 - board.active_player):
+            board.left_rook_moved[board.active_player] = True
+        elif move[0][1] == 7 and move[0][0] == 7 * (1 - board.active_player):
+            board.right_rook_moved[board.active_player] = True
+
+    # Совершение стандартного хода
     board.pieces_positions[move[1][0]][move[1][1]] = board.pieces_positions[move[0][0]][move[0][1]]
     board.pieces_positions[move[0][0]][move[0][1]] = "empty"
+        
+    # Дополнительные действия для обработки взятия пешки пешкой "на проходе"
+    if check_pawn_extramove(board, move):
+        board.pieces_positions[move[0][0]][move[1][1]] = "empty"
+    
+    # Дополнительные действия для обработки рокировки
+    if check_king_castling(board, move):
+        print("CASTLING")
+        if move[0][1] < move[1][1]:
+            # Случай короткой рокировки
+            add_move_to_board(board, ((7 * (1 - board.active_player), 7), (7 * (1 - board.active_player), 5)) )
+        elif move[0][1] > move[1][1]:
+            # Случай длинной рокировки
+            add_move_to_board(board, ((7 * (1 - board.active_player), 0), (7 * (1 - board.active_player), 3)) )
+        board.active_player = 1 - board.active_player
+        
+
+    # Дополнительные действия для проверкки того, дошла ли какая-то пешка до "дамок"
     last_pawn_position = board.check_pawns()
     board.active_player = 1 - board.active_player
+    board.previous_move = move
     return last_pawn_position
+
+def check_king_castling(board, move):
+    if board.pieces_positions[move[1][0]][move[1][1]][:-1] == "king" and\
+        abs(move[0][1] - move[1][1]) == 2:
+        return True
+    return False
+
+def check_pawn_extramove(board, move):
+    if board.pieces_positions[move[0][0]][move[1][1]] == "pawn{}".format(1 - board.active_player) and\
+        board.previous_move[0] == (move[0][0] + 2 * (2 * board.active_player - 1), move[1][1]) and\
+        board.previous_move[1] == (move[0][0], move[1][1]):
+            return True
+    return False
 
 def check_if_end_of_game(board, move):
     '''
@@ -38,7 +81,7 @@ def check_if_end_of_game(board, move):
 
 
 class Board:
-    def __init__(self):
+    def __init__(self, debug=False):
         '''
             Инициализация доски. Фигуры располагаются в порядке, установленном
             правилами шахмат (от 15 века нашей эры).
@@ -61,15 +104,21 @@ class Board:
         self.active_player = 0
 
         self.previous_move = None
+        self.debug = debug
+        
+        self.king_moved = [False, False]
+        self.right_rook_moved = [False, False]
+        self.left_rook_moved = [False, False]
 
     def check_pawns(self):
         last_raw_ind =  7 * self.active_player
         for col_ind in range(8):
             if self.pieces_positions[last_raw_ind][col_ind] == "pawn{}".format(self.active_player):
-                print("|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n")
-                return True
+                if self.debug:
+                    print("|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n")
+                return (last_raw_ind, col_ind)
 
-        return False
+        return None
     
     def change_piece(self, position, new_piece_name):
         '''
@@ -174,6 +223,14 @@ class Board:
         if piece_raw_ind - pawn_step == 7 * (1 - self.active_player):
             pawn_possible_moves.append(((piece_raw_ind, piece_col_ind), (piece_raw_ind + 2 * pawn_step, piece_col_ind)))
             
+        # Правило съедания пешки "на проходе"
+        if piece_raw_ind == 7 * self.active_player - 3 * pawn_step and\
+            self.pieces_positions[self.previous_move[1][0]][self.previous_move[1][1]] == "pawn{}".format(1 - self.active_player) and\
+            abs(self.previous_move[1][0] - self.previous_move[0][0]) == 2 and abs(self.previous_move[1][1] - piece_col_ind) == 1:
+                pawn_possible_moves.append(((piece_raw_ind, piece_col_ind), (piece_raw_ind + pawn_step, self.previous_move[1][1]))) 
+            
+
+
         return pawn_possible_moves            
 
 
@@ -288,6 +345,26 @@ class Board:
                 if self.pieces_positions[new_raw_ind][new_col_ind] == "empty" or\
                     int(self.pieces_positions[new_raw_ind][new_col_ind][-1]) == 1 - self.active_player:
                     king_possible_moves.append(((piece_raw_ind, piece_col_ind), (new_raw_ind, new_col_ind)))
+
+        # Короткая рокировка
+        if not self.king_moved[self.active_player] and not self.right_rook_moved[self.active_player] and\
+            self.pieces_positions[piece_raw_ind][piece_col_ind + 1] == "empty" and\
+            self.pieces_positions[piece_raw_ind][piece_col_ind + 2] == "empty" and\
+            not self.is_check_after_move(((piece_raw_ind, piece_col_ind), (piece_raw_ind, piece_col_ind))) and\
+            not self.is_check_after_move(((piece_raw_ind, piece_col_ind), (piece_raw_ind, piece_col_ind + 1))):
+            
+            king_possible_moves.append(((piece_raw_ind, piece_col_ind), (piece_raw_ind, piece_col_ind + 2)))
+
+        # Длинная рокировка
+        if not self.king_moved[self.active_player] and not self.left_rook_moved[self.active_player] and\
+            self.pieces_positions[piece_raw_ind][piece_col_ind - 1] == "empty" and\
+            self.pieces_positions[piece_raw_ind][piece_col_ind - 2] == "empty" and\
+            self.pieces_positions[piece_raw_ind][piece_col_ind - 3] == "empty" and\
+            not self.is_check_after_move(((piece_raw_ind, piece_col_ind), (piece_raw_ind, piece_col_ind))) and\
+            not self.is_check_after_move(((piece_raw_ind, piece_col_ind), (piece_raw_ind, piece_col_ind - 1))):
+
+            king_possible_moves.append(((piece_raw_ind, piece_col_ind), (piece_raw_ind, piece_col_ind - 2)))
+
         return king_possible_moves    
             
     
@@ -323,12 +400,9 @@ class Board:
     def check_if_check(self):
         saved_active_player = self.active_player
         #self.active_player = 1 - self.active_player
-        print(self.active_player)
         possible_moves = self.get_all_possible_moves(check_for_check=False)
         #self.active_player = saved_active_player
-        print(1 - saved_active_player)
         king_position = self.find_king_position(1 - saved_active_player)
-        print(king_position)
         for move in possible_moves:
             if move[1] == king_position:
                 return True
