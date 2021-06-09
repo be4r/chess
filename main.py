@@ -128,6 +128,7 @@ class Game(tk.Tk):
 	def end_game(self, end_type):
 		print('WIN!')
 		self.allow_select_pieces = False
+		end_type = 'checkmate0'
 		if end_type == 'checkmate0':
 			self.end_img = ImageTk.PhotoImage(Image.open('imgs/win.png').resize((grid_size * 12, grid_size * 12)), size=(grid_size * 12, grid_size * 12))
 			piece_img = self.canvas.create_image(4 * grid_size, 4 * grid_size, image = self.end_img)
