@@ -15,6 +15,7 @@ grid_size = 96
 
 class Game(tk.Tk):
 	'main class, descendant from tkinter'
+	allow_select_pieces = True
 	def __init__(self):
 		'''
 		Constructor
@@ -95,6 +96,7 @@ class Game(tk.Tk):
 			self.board.change_pawn(pawn_pos, answer)
 	
 	def pawn_change_ask(self, pos):
+		self.allow_select_pieces = False
 		self.turn_label.configure(text =  'Выберите фигуру:')
 		sizes = (6 * grid_size, 2 * grid_size)
 		self.choose_image = ImageTk.PhotoImage(Image.open('imgs/choose.png').resize(sizes), size = sizes)
@@ -108,6 +110,7 @@ class Game(tk.Tk):
 			for i in self.canvas.find_all()[-5:]:
 				self.canvas.delete(i)
 			self.turn_label.configure(text = 'Ходят белые' if not self.board.active_player else 'Ходят черные')
+			self.allow_select_pieces = True
 			print(answer, pos)
 		self.canvas.tag_bind(queen, '<Button-1>', lambda e: set_answer('queen'))
 		self.canvas.tag_bind(bishop, '<Button-1>', lambda e: set_answer('bishop'))
@@ -115,10 +118,17 @@ class Game(tk.Tk):
 		self.canvas.tag_bind(rook, '<Button-1>', lambda e: set_answer('rook'))
 
 	def end_game(self, end_type):
-		end_img = ImageTk.PhotoImage(Image.open('imgs/mate.png').resize((grid_size * 8,grid_size * 8)), size=(grid_size * 8,grid_size * 8))
-		piece_img = self.canvas.create_image(0, 0, anchor='nw',image = end_img)
+		print('WIN!')
+		bishop = self.canvas.create_image(2.75 * grid_size, 3.5 * grid_size, image = self.imgs_cache['bishop0'], anchor = 'nw')
+		self.allow_select_pieces = False
+		self.end_img = ImageTk.PhotoImage(Image.open('imgs/mate.png').resize((grid_size * 8, grid_size * 8)), size=(grid_size * 8, grid_size * 8))
+		piece_img = self.canvas.create_image(0, 0, anchor='nw',image = self.end_img)
+		self.turn_label.configure(text = 'Победа! %s' % end_type)
 
 	def select_tile(self, event):
+		if self.allow_select_pieces == False:
+			playsound('sound/error.mp3')
+			return
 		if self.turn['stage'] == 0:
 			# if its first click
 			# get tile number from coords
@@ -148,9 +158,9 @@ class Game(tk.Tk):
 			is_ended, end_type =  check_if_end_of_game(self.board, move)
 			if is_ended:
 				self.end_game(end_type)
-			# redraw and stuff
-			self.redraw(self.board.get_pieces_positions(), False)
-			self.pawn_change_ask((0,0))
+			else:
+				# redraw and stuff
+				self.redraw(self.board.get_pieces_positions(), False)
 		pass
 
 
