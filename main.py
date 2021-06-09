@@ -7,6 +7,7 @@ The module that manages frontend: all the drwaings and prettyness
 import tkinter as tk
 import tkinter.font as font
 import tkinter.messagebox as msgbox
+from playsound import playsound
 from PIL import Image, ImageTk
 from backend import check_if_move_correct, add_move_to_board, check_if_end_of_game, Board
 
@@ -86,10 +87,20 @@ class Game(tk.Tk):
 		self.canvas.tag_bind(piece_img, '<Button-1>', lambda e: self.select_tile(e))
 		self.canvas.grid()
 
+	def make_move(self, move):
+		global turn_black
+		turn_black = not turn_black
+		self.turn_label.configure(text = 'Ходят черные' if turn_black else 'Ходят белые')
+		playsound('sound/press2.mp3')
+		add_move_to_board(self.board, move)
 	
+	def end_game(self, end_type):
+		end_img = ImageTk.PhotoImage(Image.open('imgs/mate.png').resize((grid_size * 8,grid_size * 8)), size=(grid_size * 8,grid_size * 8))
+		piece_img = self.canvas.create_image(0, 0, anchor='nw',image = end_img)
 
 	def select_tile(self, event):
 		if self.turn['stage'] == 0:
+			playsound('sound/press1.mp3')
 			# if its first click
 			# get tile number from coords
 			self.turn['x'] = event.x // grid_size
@@ -101,17 +112,18 @@ class Game(tk.Tk):
 			self.turn['stage'] = 0
 			move = ((self.turn['y'], self.turn['x']),  (event.y // grid_size, event.x // grid_size))
 			print('trying ', move)
+
 			if check_if_move_correct(self.board, move):
-				add_move_to_board(self.board, move)
+				# made move successfull
+				self.make_move(move)
 			else:
 				# incorrect move
-				msgbox.showerror(title='ATTENTION!', message='This move is prohibited!\nIts impossible!\n\nYOU DID BAD!')
-			#if check_if_end_of_game(self.board, move):
-			#	end_game()
+				playsound('sound/error.mp3')
+				# msgbox.showerror(title='ATTENTION!', message='This move is prohibited!\nIts impossible!\n\nYOU DID BAD!')
+			is_ended, end_type =  check_if_end_of_game(self.board, move)
+			if is_ended:
+				self.end_game(end_type)
 			# redraw and stuff
-			global turn_black
-			turn_black = not turn_black
-			self.turn_label.configure(text = 'Ходят черные' if turn_black else 'Ходят белые')
 			self.redraw(self.board.get_pieces_positions(), False)
 		pass
 
