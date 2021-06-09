@@ -92,8 +92,28 @@ class Game(tk.Tk):
 		turn_black = not turn_black
 		self.turn_label.configure(text = 'Ходят черные' if turn_black else 'Ходят белые')
 		playsound('sound/press2.mp3')
-		add_move_to_board(self.board, move)
+		pawn_pos = add_move_to_board(self.board, move)
+		if pawn_pos:
+			answer = self.pawn_change_ask(pos)
+			self.board.change_pawn(pawn_pos, answer)
 	
+	def pawn_change_ask(self, pos):
+		sizes = (6 * grid_size, 2 * grid_size)
+		self.choose_image = ImageTk.PhotoImage(Image.open('imgs/choose.png').resize(sizes), size = sizes)
+		self.canvas.create_image(1 * grid_size, 3 * grid_size, image = self.choose_image, anchor='nw')
+		queen = self.canvas.create_image(1.25 * grid_size, 3.5 * grid_size, image = self.imgs_cache['queen0'], anchor = 'nw')
+		bishop = self.canvas.create_image(2.75 * grid_size, 3.5 * grid_size, image = self.imgs_cache['bishop0'], anchor = 'nw')
+		knight = self.canvas.create_image(4.25 * grid_size, 3.5 * grid_size, image = self.imgs_cache['knight0'], anchor = 'nw')
+		rook = self.canvas.create_image(5.75 * grid_size, 3.5 * grid_size, image = self.imgs_cache['rook0'], anchor = 'nw')
+		def set_answer(answer):
+			for i in self.canvas.find_all()[-5:]:
+				self.canvas.delete(i)
+			print(answer, pos)
+		self.canvas.tag_bind(queen, '<Button-1>', lambda e: set_answer('queen'))
+		self.canvas.tag_bind(bishop, '<Button-1>', lambda e: set_answer('bishop'))
+		self.canvas.tag_bind(knight, '<Button-1>', lambda e: set_answer('knight'))
+		self.canvas.tag_bind(rook, '<Button-1>', lambda e: set_answer('rook'))
+
 	def end_game(self, end_type):
 		end_img = ImageTk.PhotoImage(Image.open('imgs/mate.png').resize((grid_size * 8,grid_size * 8)), size=(grid_size * 8,grid_size * 8))
 		piece_img = self.canvas.create_image(0, 0, anchor='nw',image = end_img)
@@ -105,6 +125,10 @@ class Game(tk.Tk):
 			# get tile number from coords
 			self.turn['x'] = event.x // grid_size
 			self.turn['y'] = event.y // grid_size
+			# if selected white on black turn or other side around
+			if (self.board.get_pieces_positions()[self.turn['x']][self.turn['y']][-1] == '1') ^ turn_black:
+				print('wrong color')
+				return
 			self.turn['stage'] = 1
 			self.redraw(self.board.get_pieces_positions(), True)
 		elif self.turn['stage'] == 1:
@@ -125,6 +149,7 @@ class Game(tk.Tk):
 				self.end_game(end_type)
 			# redraw and stuff
 			self.redraw(self.board.get_pieces_positions(), False)
+			self.pawn_change_ask((0,0))
 		pass
 
 
