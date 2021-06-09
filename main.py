@@ -92,7 +92,7 @@ class Game(tk.Tk):
 		playsound('sound/press2.mp3')
 		pawn_pos = add_move_to_board(self.board, move)
 		if pawn_pos:
-			answer = self.pawn_change_ask(pos)
+			answer = self.pawn_change_ask(pawn_pos)
 			self.board.change_pawn(pawn_pos, answer)
 	
 	def pawn_change_ask(self, pos):
