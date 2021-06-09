@@ -5,7 +5,8 @@ def check_if_move_correct(board, move):
         Проверка корректности хода, сделанного пользователем
     '''
     all_possible_moves = board.get_all_possible_moves()
-    print(all_possible_moves)
+    if board.debug:    
+        print(all_possible_moves)
     if move in all_possible_moves:    
         return True
     return False
@@ -18,10 +19,19 @@ def add_move_to_board(board, move):
     '''
     board.pieces_positions[move[1][0]][move[1][1]] = board.pieces_positions[move[0][0]][move[0][1]]
     board.pieces_positions[move[0][0]][move[0][1]] = "empty"
+    if check_pawn_extramove(board, move):
+        board.pieces_positions[move[0][0]][move[1][1]] = "empty"
     last_pawn_position = board.check_pawns()
     board.active_player = 1 - board.active_player
     board.previous_move = move
     return last_pawn_position
+
+def check_pawn_extramove(board, move):
+    if board.pieces_positions[move[0][0]][move[1][1]] == "pawn{}".format(1 - board.active_player) and\
+        board.previous_move[0] == (move[0][0] + 2 * (2 * board.active_player - 1), move[1][1]) and\
+        board.previous_move[1] == (move[0][0], move[1][1]):
+            return True
+    return False
 
 def check_if_end_of_game(board, move):
     '''
@@ -39,7 +49,7 @@ def check_if_end_of_game(board, move):
 
 
 class Board:
-    def __init__(self):
+    def __init__(self, debug=False):
         '''
             Инициализация доски. Фигуры располагаются в порядке, установленном
             правилами шахмат (от 15 века нашей эры).
@@ -62,12 +72,14 @@ class Board:
         self.active_player = 0
 
         self.previous_move = None
+        self.debug = debug
 
     def check_pawns(self):
         last_raw_ind =  7 * self.active_player
         for col_ind in range(8):
             if self.pieces_positions[last_raw_ind][col_ind] == "pawn{}".format(self.active_player):
-                print("|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n")
+                if self.debug:
+                    print("|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n")
                 return (last_raw_ind, col_ind)
 
         return None
@@ -332,12 +344,9 @@ class Board:
     def check_if_check(self):
         saved_active_player = self.active_player
         #self.active_player = 1 - self.active_player
-        print(self.active_player)
         possible_moves = self.get_all_possible_moves(check_for_check=False)
         #self.active_player = saved_active_player
-        print(1 - saved_active_player)
         king_position = self.find_king_position(1 - saved_active_player)
-        print(king_position)
         for move in possible_moves:
             if move[1] == king_position:
                 return True
