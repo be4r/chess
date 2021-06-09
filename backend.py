@@ -136,7 +136,7 @@ class Board:
     def change_pawn(self, position, new_piece_name):
         if new_piece_name == "queen" or new_piece_name == "rook" or new_piece_name == "bishop" or\
             new_piece_name == "knight":
-            self.change_piece(self, position, new_piece_name)
+            self.change_piece(position, new_piece_name)
         else:
             print("Вы пытаетесь заменить пешку на какую-то странную фигуру ({}).".format(new_piece_name))
             print("Её можно заменить только на королеву (queen), ладью (rook), слона (bishop) и коня (knight).")         

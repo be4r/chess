@@ -87,16 +87,9 @@ class Game(tk.Tk):
 		self.canvas.tag_bind(piece_img, '<Button-1>', lambda e: self.select_tile(e))
 		self.canvas.grid()
 
-	def make_move(self, move):
-		self.turn_label.configure(text = 'Ходят белые' if self.board.active_player else 'Ходят черные')
-		playsound('sound/press2.mp3')
-		pawn_pos = add_move_to_board(self.board, move)
-		if pawn_pos:
-			answer = self.pawn_change_ask(pawn_pos)
-			self.board.change_pawn(pawn_pos, answer)
-	
 	def pawn_change_ask(self, pos):
 		self.allow_select_pieces = False
+		# graphical stuff
 		self.turn_label.configure(text =  'Выберите фигуру:')
 		sizes = (6 * grid_size, 2 * grid_size)
 		self.choose_image = ImageTk.PhotoImage(Image.open('imgs/choose.png').resize(sizes), size = sizes)
@@ -106,12 +99,17 @@ class Game(tk.Tk):
 		bishop = self.canvas.create_image(2.75 * grid_size, 3.5 * grid_size, image = self.imgs_cache['bishop%d' % q], anchor = 'nw')
 		knight = self.canvas.create_image(4.25 * grid_size, 3.5 * grid_size, image = self.imgs_cache['knight%d' % q], anchor = 'nw')
 		rook = self.canvas.create_image(5.75 * grid_size, 3.5 * grid_size, image = self.imgs_cache['rook%d' % q], anchor = 'nw')
+		# callback on figure choice
 		def set_answer(answer):
 			for i in self.canvas.find_all()[-5:]:
 				self.canvas.delete(i)
 			self.turn_label.configure(text = 'Ходят белые' if not self.board.active_player else 'Ходят черные')
 			self.allow_select_pieces = True
+			self.board.change_pawn(pos, answer)
+			# redraw
+			self.redraw(self.board.get_pieces_positions(), False)
 			print(answer, pos)
+		# veshayem callback
 		self.canvas.tag_bind(queen, '<Button-1>', lambda e: set_answer('queen'))
 		self.canvas.tag_bind(bishop, '<Button-1>', lambda e: set_answer('bishop'))
 		self.canvas.tag_bind(knight, '<Button-1>', lambda e: set_answer('knight'))
@@ -148,9 +146,12 @@ class Game(tk.Tk):
 			move = ((self.turn['y'], self.turn['x']),  (event.y // grid_size, event.x // grid_size))
 			print('trying ', move)
 
+			pawn_pos = None
 			if check_if_move_correct(self.board, move):
 				# made move successfull
-				self.make_move(move)
+				self.turn_label.configure(text = 'Ходят белые' if self.board.active_player else 'Ходят черные')
+				playsound('sound/press2.mp3')
+				pawn_pos = add_move_to_board(self.board, move)
 			else:
 				# incorrect move
 				playsound('sound/error.mp3')
@@ -161,6 +162,8 @@ class Game(tk.Tk):
 			else:
 				# redraw and stuff
 				self.redraw(self.board.get_pieces_positions(), False)
+			if pawn_pos:
+				answer = self.pawn_change_ask(pawn_pos)
 		pass
 
 
