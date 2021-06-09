@@ -17,7 +17,11 @@ def real_time_test():
         elif type(eval(request)) == tuple:
             move = eval(request)
             if check_if_move_correct(board, move):
-                add_move_to_board(board, move)
+                pawn_position = add_move_to_board(board, move)
+                if pawn_position is not None:
+                    user_answer = input()
+                    board.change_pawn(pawn_position, user_answer.split(' ')[0])
+                
                 show_pieces(board.get_pieces_positions())
             else:
                 print("Wrong move!")

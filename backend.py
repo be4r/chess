@@ -81,7 +81,7 @@ def check_if_end_of_game(board, move):
 
 
 class Board:
-    def __init__(self, debug=False):
+    def __init__(self, debug=True):
         '''
             Инициализация доски. Фигуры располагаются в порядке, установленном
             правилами шахмат (от 15 века нашей эры).
@@ -220,7 +220,9 @@ class Board:
                 pawn_possible_moves.append(((piece_raw_ind, piece_col_ind), (piece_raw_ind + pawn_step, piece_col_ind - 1)))
                                
         # Первый ход пешки на 2 поля вперёд
-        if piece_raw_ind - pawn_step == 7 * (1 - self.active_player):
+        if piece_raw_ind - pawn_step == 7 * (1 - self.active_player) and\
+             self.pieces_positions[piece_raw_ind + pawn_step][piece_col_ind] == "empty" and\
+             self.pieces_positions[piece_raw_ind + 2 * pawn_step][piece_col_ind] == "empty":
             pawn_possible_moves.append(((piece_raw_ind, piece_col_ind), (piece_raw_ind + 2 * pawn_step, piece_col_ind)))
             
         # Правило съедания пешки "на проходе"
