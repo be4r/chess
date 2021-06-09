@@ -1,6 +1,9 @@
 import copy
 
 def check_if_move_correct(board, move):
+    '''
+        Проверка корректности хода, сделанного пользователем
+    '''
     all_possible_moves = board.get_all_possible_moves()
     print(all_possible_moves)
     if move in all_possible_moves:    
@@ -8,6 +11,9 @@ def check_if_move_correct(board, move):
     return False
 
 def add_move_to_board(board, move):
+    '''
+        Добавление одного хода на доску. Предполагается, что этот ход корректен. В данной функции нет проверки корректности хода.
+    '''
     board.pieces_positions[move[1][0]][move[1][1]] = board.pieces_positions[move[0][0]][move[0][1]]
     board.pieces_positions[move[0][0]][move[0][1]] = "empty" 
     board.active_player = 1 - board.active_player
@@ -15,7 +21,10 @@ def add_move_to_board(board, move):
 def check_if_end_of_game(board, move):
     if not board.get_all_possible_moves():
         print("HAHAHAHAHHAAHAH")
-        return True
+        if board.check_if_check():
+            return True, 'mate'
+        else
+            return True, 'pate'
     return False
 
 
