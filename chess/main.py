@@ -3,17 +3,28 @@ The module that manages frontend: all the drwaings and prettyness
 :copyright: (c) copyleft (R), 2021
 :license: GNU GPL
 '''
-
+import os, sys 
+sys.path.append(os.path.dirname(os.path.realpath(__file__)))
+import backend
 import tkinter as tk
 import tkinter.font as font
 import gettext
 #import tkinter.messagebox as msgbox
 from threading import Thread
-#from playsound import playsound as play_sound
+from playsound import playsound as play_sound
 from PIL import Image, ImageTk
-from backend import check_if_move_correct, add_move_to_board, check_if_end_of_game, Board
+try:
+	from backend import check_if_move_correct, add_move_to_board, check_if_end_of_game, Board
+except:
+	pass
+try:
+	from .backend import check_if_move_correct, add_move_to_board, check_if_end_of_game, Board
+except:
+	pass
 
 grid_size = 96
+imgs_path = '%s/imgs' % os.path.dirname(os.path.abspath(__file__))
+sound_path = '%s/sound' % os.path.dirname(os.path.abspath(__file__))
 
 gettext.install('chess', localedir = 'po')
 
@@ -24,8 +35,11 @@ def playsound(filename):
 	returns None
 	'''
 	return #cos there are problems with sound
-	t = Thread(target = lambda: play_sound(filename))
-	t.start()
+	try:
+		t = Thread(target = lambda: play_sound("%s/%s" % (sound_path, filename)))
+		t.start()
+	except:
+		pass
 
 class Game(tk.Tk):
 	'main class, descendant from tkinter'
@@ -78,11 +92,11 @@ class Game(tk.Tk):
 				if piece == 'king%d' % int(self.board.active_player):
 					if self.board.check_if_check():
 						if not self.is_check:
-							playsound('sound/check.mp3')
+							playsound('check.mp3')
 							self.is_check = True
 						# load check img
 						self.imgs_cache['check'] = ImageTk.PhotoImage(
-								Image.open('imgs/uniq/check.png').resize((grid_size,grid_size)), size=(grid_size,grid_size))
+								Image.open('%s/%s' % (imgs_path, 'uniq/check.png')).resize((grid_size,grid_size)), size=(grid_size,grid_size))
 						self.check_img = self.canvas.create_image(j * grid_size, i * grid_size, 
 								image = self.imgs_cache['check'], anchor = 'nw')
 						self.canvas.tag_bind(self.check_img, '<Button-1>', lambda e: self.select_tile(e))
@@ -101,8 +115,8 @@ class Game(tk.Tk):
 				'bishop1':'bishop_black.png', 'king1':'king_black.png', 
 				'queen1':'queen_black.png', 'pawn1':'pawn_black.png',
 				'empty': 'empty.png'}
-			piece_orig_img_path = 'imgs/orig/%s' % pieces_imgs[piece]
-			piece_active_img_path = 'imgs/selected/%s' % pieces_imgs[piece]
+			piece_orig_img_path = '%s/orig/%s' % (imgs_path, pieces_imgs[piece])
+			piece_active_img_path = '%s/selected/%s' % (imgs_path, pieces_imgs[piece])
 			img1 = ImageTk.PhotoImage(Image.open(piece_orig_img_path).resize((grid_size,grid_size)), size=(grid_size,grid_size))
 			img2 = ImageTk.PhotoImage(Image.open(piece_active_img_path).resize((grid_size,grid_size)), size=(grid_size,grid_size))
 			self.imgs_cache[piece] = img1
@@ -124,7 +138,7 @@ class Game(tk.Tk):
 		# graphical stuff
 		self.turn_label.configure(text =  _('Выберите фигуру:'))
 		sizes = (6 * grid_size, 2 * grid_size)
-		self.imgs_cache['choose'] = ImageTk.PhotoImage(Image.open('imgs/uniq/choose.png').resize(sizes), size = sizes)
+		self.imgs_cache['choose'] = ImageTk.PhotoImage(Image.open('%s/%s' % (imgs_path, 'uniq/choose.png')).resize(sizes), size = sizes)
 		self.canvas.create_image(1 * grid_size, 3 * grid_size, image = self.imgs_cache['choose'], anchor='nw')
 		q = 0 if self.board.active_player else 1
 		queen = self.canvas.create_image(1.25 * grid_size, 3.5 * grid_size, image = self.imgs_cache['queen%d' % q], anchor = 'nw')
@@ -152,29 +166,32 @@ class Game(tk.Tk):
 		self.allow_select_pieces = False
 		if end_type == 'checkmate0':
 			self.imgs_cache['win'] = ImageTk.PhotoImage(
-					Image.open(_('imgs/uniq/winRU.png')).resize((grid_size * 8, grid_size * 8)), size=(grid_size * 8, grid_size * 8))
+					Image.open(_('%s/uniq/winRU.png' % imgs_path)).resize(
+					(grid_size * 8, grid_size * 8)), size=(grid_size * 8, grid_size * 8))
 			piece_img = self.canvas.create_image(4 * grid_size, 4 * grid_size, image = self.imgs_cache['win'])
 			print(_('imgs/uniq/winRU.png'))
 			self.canvas.grid()
 			self.turn_label.configure(text = _('Победа!'))
-			playsound('sound/win.mp3')
+			playsound('win.mp3')
 		elif end_type == 'checkmate1':
 			self.imgs_cache['lose'] = ImageTk.PhotoImage(
-					Image.open(_('imgs/uniq/loseRU.png')).resize((grid_size * 8, grid_size * 8)), size=(grid_size * 8, grid_size * 8))
+					Image.open(_('%s/uniq/loseRU.png' % imgs_path)).resize(
+					(grid_size * 8, grid_size * 8)), size=(grid_size * 8, grid_size * 8))
 			piece_img = self.canvas.create_image(4 * grid_size, 4 * grid_size, image = self.imgs_cache['lose'])
 			self.turn_label.configure(text = _('Поражение . . . . . . . '))
-			playsound('sound/lose.mp3')
+			playsound('lose.mp3')
 		else: # stalemate
 			self.imgs_cache['stale'] = ImageTk.PhotoImage(
-					Image.open(_('imgs/uniq/pat.png')).resize((grid_size * 8, grid_size * 8)), size=(grid_size * 8, grid_size * 8))
+					Image.open(_('%s/uniq/pat.png' % imgs_path)).resize(
+					(grid_size * 8, grid_size * 8)), size=(grid_size * 8, grid_size * 8))
 			piece_img = self.canvas.create_image(4 * grid_size, 4 * grid_size, image = self.imgs_cache['stale'])
 			self.turn_label.configure(text = _('Патовая ситуация'))
-			playsound('sound/pat.mp3')
+			playsound('pat.mp3')
 			
 
 	def select_tile(self, event):
 		if self.allow_select_pieces == False:
-			playsound('sound/error.mp3')
+			playsound('error.mp3')
 			return
 		if self.turn['stage'] == 0:
 			# if its first click
@@ -187,11 +204,11 @@ class Game(tk.Tk):
 				or ((self.board.get_pieces_positions()[y][x][-1] != '1') and self.board.active_player)):
 				print('wrong color')
 				return
-			playsound('sound/press1.mp3')
+			playsound('press1.mp3')
 			self.turn['stage'] = 1
 			self.redraw(self.board.get_pieces_positions(), True)
 			self.imgs_cache['selection'] = ImageTk.PhotoImage(
-					Image.open('imgs/uniq/select1.png').resize((grid_size,grid_size)), size=(grid_size,grid_size))
+					Image.open('%s/uniq/select1.png' % imgs_path).resize((grid_size,grid_size)), size=(grid_size,grid_size))
 			self.selection_img = self.canvas.create_image(x * grid_size, y * grid_size, image = self.imgs_cache['selection'], anchor = 'nw')
 		elif self.turn['stage'] == 1:
 			self.canvas.delete(self.selection_img)
@@ -204,11 +221,11 @@ class Game(tk.Tk):
 			if check_if_move_correct(self.board, move):
 				# made move successfull
 				self.turn_label.configure(text = _('Ходят белые') if self.board.active_player else _('Ходят черные'))
-				playsound('sound/press2.mp3')
+				playsound('press2.mp3')
 				pawn_pos = add_move_to_board(self.board, move)
 			else:
 				# incorrect move
-				playsound('sound/error.mp3')
+				playsound('error.mp3')
 				# msgbox.showerror(title='ATTENTION!', message='This move is prohibited!\nIts impossible!\n\nYOU DID BAD!')
 			is_ended, end_type =  check_if_end_of_game(self.board, move)
 			if is_ended:
@@ -218,12 +235,12 @@ class Game(tk.Tk):
 				self.redraw(self.board.get_pieces_positions(), False)
 			if pawn_pos:
 				answer = self.pawn_change_ask(pawn_pos)
-		self.end_game('checkmate1')
 		pass
 
 
 	def start(self):
 		self.mainloop()
 
-game = Game()
-game.start()
+if __name__ == '__main__':
+	game = Game()
+	game.start()
