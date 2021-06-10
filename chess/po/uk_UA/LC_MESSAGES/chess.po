@@ -1,0 +1,57 @@
+# Ukrainian (Ukraine) translations for PROJECT.
+# Copyright (C) 2021 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2021-06-10 14:31+0300\n"
+"PO-Revision-Date: 2021-06-10 13:39+0300\n"
+"Last-Translator: BE4R <EMAIL@ADDRESS>\n"
+"Language: uk_UA\n"
+"Language-Team: uk_UA <LL@li.org>\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.9.1\n"
+
+#: main.py:48 main.py:138 main.py:205
+msgid "Ходят белые"
+msgstr "Бiлi ходять"
+
+#: main.py:125
+msgid "Выберите фигуру:"
+msgstr "Оберiть фiгуру:"
+
+#: main.py:138 main.py:205
+msgid "Ходят черные"
+msgstr "Чорнi ходять"
+
+#: main.py:155
+msgid "imgs/uniq/winRU.png"
+msgstr "imgs/uniq/winUA.png"
+
+#: main.py:158
+msgid "Победа!"
+msgstr "Перемога!"
+
+#: main.py:162
+msgid "imgs/uniq/loseRU.png"
+msgstr "imgs/uniq/loseUA.png"
+
+#: main.py:164
+msgid "Поражение . . . . . . . "
+msgstr "Ви зазнали поразки . . ."
+
+#: main.py:168
+msgid "imgs/uniq/pat.png"
+msgstr ""
+
+#: main.py:170
+msgid "Патовая ситуация"
+msgstr "Патова сiтуацiя"
+
