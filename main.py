@@ -7,11 +7,21 @@ The module that manages frontend: all the drwaings and prettyness
 import tkinter as tk
 import tkinter.font as font
 import tkinter.messagebox as msgbox
-#from playsound import playsound
+from threading import Thread
+from playsound import playsound as play_sound
 from PIL import Image, ImageTk
 from backend import check_if_move_correct, add_move_to_board, check_if_end_of_game, Board
 
 grid_size = 96
+
+def playsound(filename):
+	'''
+	Plays sound asynchronically (now thats not an easy word sorry for misspelling 2lazy2google)
+	:param filename: name of sound file to play
+	returns None
+	'''
+	t = Thread(target = lambda: play_sound(filename))
+	t.start()
 
 class Game(tk.Tk):
 	'main class, descendant from tkinter'
@@ -52,10 +62,6 @@ class Game(tk.Tk):
 		:param board: matrix of chess figures
 		:param active: type `bool`
 		'''
-		# idk where to put next 3 lines :D
-		if 'empty2' not in self.imgs_cache:
-			img = ImageTk.PhotoImage(Image.open('imgs/empty2.png').resize((grid_size,grid_size)), size=(grid_size,grid_size))
-			self.imgs_cache['empty2'] = img
 		# delete old
 		for i in self.canvas.find_all():
 			self.canvas.delete(i)
@@ -74,12 +80,15 @@ class Game(tk.Tk):
 				'bishop1':'bishop_black.png', 'king1':'king_black.png', 
 				'queen1':'queen_black.png', 'pawn1':'pawn_black.png',
 				'empty': 'empty.png'}
-			piece_img_path = 'imgs/%s' % pieces_imgs[piece]
-			img = ImageTk.PhotoImage(Image.open(piece_img_path).resize((grid_size,grid_size)), size=(grid_size,grid_size))
-			self.imgs_cache[piece] = img
+			piece_orig_img_path = 'imgs/orig/%s' % pieces_imgs[piece]
+			piece_active_img_path = 'imgs/selected/%s' % pieces_imgs[piece]
+			img1 = ImageTk.PhotoImage(Image.open(piece_orig_img_path).resize((grid_size,grid_size)), size=(grid_size,grid_size))
+			img2 = ImageTk.PhotoImage(Image.open(piece_active_img_path).resize((grid_size,grid_size)), size=(grid_size,grid_size))
+			self.imgs_cache[piece] = img1
+			self.imgs_cache['%s_selected' % piece] = img2
 		# draw cached
 		if active:
-			piece_img = self.canvas.create_image(coords[0] * grid_size, coords[1] * grid_size, anchor='nw',image = self.imgs_cache[piece], activeimage = self.imgs_cache['empty2'])
+			piece_img = self.canvas.create_image(coords[0] * grid_size, coords[1] * grid_size, anchor='nw',image = self.imgs_cache[piece], activeimage = self.imgs_cache['%s_selected' % piece])
 		else:
 			piece_img = self.canvas.create_image(coords[0] * grid_size, coords[1] * grid_size, anchor='nw',image = self.imgs_cache[piece])
 		self.imgs.append(piece)
@@ -92,8 +101,8 @@ class Game(tk.Tk):
 		# graphical stuff
 		self.turn_label.configure(text =  'Выберите фигуру:')
 		sizes = (6 * grid_size, 2 * grid_size)
-		self.choose_image = ImageTk.PhotoImage(Image.open('imgs/choose.png').resize(sizes), size = sizes)
-		self.canvas.create_image(1 * grid_size, 3 * grid_size, image = self.choose_image, anchor='nw')
+		self.imgs_cache['choose'] = ImageTk.PhotoImage(Image.open('imgs/uniq/choose.png').resize(sizes), size = sizes)
+		self.canvas.create_image(1 * grid_size, 3 * grid_size, image = self.imgs_cache['choose'], anchor='nw')
 		q = 0 if self.board.active_player else 1
 		queen = self.canvas.create_image(1.25 * grid_size, 3.5 * grid_size, image = self.imgs_cache['queen%d' % q], anchor = 'nw')
 		bishop = self.canvas.create_image(2.75 * grid_size, 3.5 * grid_size, image = self.imgs_cache['bishop%d' % q], anchor = 'nw')
@@ -117,11 +126,24 @@ class Game(tk.Tk):
 
 	def end_game(self, end_type):
 		print('WIN!')
-		bishop = self.canvas.create_image(2.75 * grid_size, 3.5 * grid_size, image = self.imgs_cache['bishop0'], anchor = 'nw')
 		self.allow_select_pieces = False
-		self.end_img = ImageTk.PhotoImage(Image.open('imgs/mate.png').resize((grid_size * 8, grid_size * 8)), size=(grid_size * 8, grid_size * 8))
-		piece_img = self.canvas.create_image(0, 0, anchor='nw',image = self.end_img)
-		self.turn_label.configure(text = 'Победа! %s' % end_type)
+		if end_type == 'checkmate0':
+			self.imgs_cache['win'] = ImageTk.PhotoImage(Image.open('imgs/uniq/win.png').resize((grid_size * 12, grid_size * 12)), size=(grid_size * 12, grid_size * 12))
+			piece_img = self.canvas.create_image(4 * grid_size, 4 * grid_size, image = self.imgs_cache['win'])
+			self.canvas.grid()
+			self.turn_label.configure(text = 'Победа!')
+			playsound('sound/win.mp3')
+		elif end_type == 'checkmate1':
+			self.imgs_cache['lose'] = ImageTk.PhotoImage(Image.open('imgs/uniq/lose.png').resize((grid_size * 8, grid_size * 8)), size=(grid_size * 8, grid_size * 8))
+			piece_img = self.canvas.create_image(4 * grid_size, 4 * grid_size, image = self.imgs_cache['lose'])
+			self.turn_label.configure(text = 'Поражение . . . . . . . ')
+			playsound('sound/lose.mp3')
+		else: # stalemate
+			self.imgs_cache['stale'] = ImageTk.PhotoImage(Image.open('imgs/uniq/pat.png').resize((grid_size * 8, grid_size * 8)), size=(grid_size * 8, grid_size * 8))
+			piece_img = self.canvas.create_image(4 * grid_size, 4 * grid_size, image = self.imgs_cache['stale'])
+			self.turn_label.configure(text = 'Патовая ситуация')
+			playsound('sound/pat.mp3')
+			
 
 	def select_tile(self, event):
 		if self.allow_select_pieces == False:
@@ -132,15 +154,18 @@ class Game(tk.Tk):
 			# get tile number from coords
 			x = self.turn['x'] = event.x // grid_size
 			y = self.turn['y'] = event.y // grid_size
+			# mark selected
 			# if selected white on black turn or other side around
-			print('qqq: ', self.board.get_pieces_positions()[self.turn['y']][self.turn['x']][-1])
 			if ((self.board.get_pieces_positions()[y][x][-1] != '0') and not self.board.active_player) or ((self.board.get_pieces_positions()[y][x][-1] != '1') and self.board.active_player):
 				print('wrong color')
 				return
 			#playsound('sound/press1.mp3')
 			self.turn['stage'] = 1
 			self.redraw(self.board.get_pieces_positions(), True)
+			self.imgs_cache['selection'] = ImageTk.PhotoImage(Image.open('imgs/uniq/select1.png').resize((grid_size,grid_size)), size=(grid_size,grid_size))
+			self.selection_img = self.canvas.create_image(x * grid_size, y * grid_size, image = self.imgs_cache['selection'], anchor = 'nw')
 		elif self.turn['stage'] == 1:
+			self.canvas.delete(self.selection_img)
 			# if its second click, send MOVE to backend
 			self.turn['stage'] = 0
 			move = ((self.turn['y'], self.turn['x']),  (event.y // grid_size, event.x // grid_size))
