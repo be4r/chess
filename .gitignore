@@ -1,2 +1,7 @@
 links
 __pycache__
+*.mo
+*.bak
+*.pot
+*.egg-info
+build

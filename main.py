@@ -6,6 +6,7 @@ The module that manages frontend: all the drwaings and prettyness
 
 import tkinter as tk
 import tkinter.font as font
+import gettext
 #import tkinter.messagebox as msgbox
 from threading import Thread
 #from playsound import playsound as play_sound
@@ -13,6 +14,8 @@ from PIL import Image, ImageTk
 from backend import check_if_move_correct, add_move_to_board, check_if_end_of_game, Board
 
 grid_size = 96
+
+gettext.install('chess', localedir = 'po')
 
 def playsound(filename):
 	'''
@@ -42,7 +45,7 @@ class Game(tk.Tk):
 		self.frame = tk.Frame(self)
 		self.frame.grid()
 		self.turn_label = tk.Label(self.frame, relief = tk.RAISED, 
-			font = font.Font(family="Lucida Grande", size=40),text='Ходят белые')
+			font = font.Font(family="Lucida Grande", size=40),text=_('Ходят белые'))
 		self.turn_label.place(x = 200, y = 200)
 		self.turn_label.grid()
 		self.canvas = tk.Canvas(self, height = grid_size * 8, width = grid_size * 8)
@@ -119,7 +122,7 @@ class Game(tk.Tk):
 	def pawn_change_ask(self, pos):
 		self.allow_select_pieces = False
 		# graphical stuff
-		self.turn_label.configure(text =  'Выберите фигуру:')
+		self.turn_label.configure(text =  _('Выберите фигуру:'))
 		sizes = (6 * grid_size, 2 * grid_size)
 		self.imgs_cache['choose'] = ImageTk.PhotoImage(Image.open('imgs/uniq/choose.png').resize(sizes), size = sizes)
 		self.canvas.create_image(1 * grid_size, 3 * grid_size, image = self.imgs_cache['choose'], anchor='nw')
@@ -132,7 +135,7 @@ class Game(tk.Tk):
 		def set_answer(answer):
 			for i in self.canvas.find_all()[-5:]:
 				self.canvas.delete(i)
-			self.turn_label.configure(text = 'Ходят белые' if not self.board.active_player else 'Ходят черные')
+			self.turn_label.configure(text = _('Ходят белые') if not self.board.active_player else _('Ходят черные'))
 			self.allow_select_pieces = True
 			self.board.change_pawn(pos, answer)
 			# redraw
@@ -149,22 +152,23 @@ class Game(tk.Tk):
 		self.allow_select_pieces = False
 		if end_type == 'checkmate0':
 			self.imgs_cache['win'] = ImageTk.PhotoImage(
-					Image.open('imgs/uniq/win.png').resize((grid_size * 12, grid_size * 12)), size=(grid_size * 12, grid_size * 12))
+					Image.open(_('imgs/uniq/winRU.png')).resize((grid_size * 8, grid_size * 8)), size=(grid_size * 8, grid_size * 8))
 			piece_img = self.canvas.create_image(4 * grid_size, 4 * grid_size, image = self.imgs_cache['win'])
+			print(_('imgs/uniq/winRU.png'))
 			self.canvas.grid()
-			self.turn_label.configure(text = 'Победа!')
+			self.turn_label.configure(text = _('Победа!'))
 			playsound('sound/win.mp3')
 		elif end_type == 'checkmate1':
 			self.imgs_cache['lose'] = ImageTk.PhotoImage(
-					Image.open('imgs/uniq/lose.png').resize((grid_size * 8, grid_size * 8)), size=(grid_size * 8, grid_size * 8))
+					Image.open(_('imgs/uniq/loseRU.png')).resize((grid_size * 8, grid_size * 8)), size=(grid_size * 8, grid_size * 8))
 			piece_img = self.canvas.create_image(4 * grid_size, 4 * grid_size, image = self.imgs_cache['lose'])
-			self.turn_label.configure(text = 'Поражение . . . . . . . ')
+			self.turn_label.configure(text = _('Поражение . . . . . . . '))
 			playsound('sound/lose.mp3')
 		else: # stalemate
 			self.imgs_cache['stale'] = ImageTk.PhotoImage(
-					Image.open('imgs/uniq/pat.png').resize((grid_size * 8, grid_size * 8)), size=(grid_size * 8, grid_size * 8))
+					Image.open(_('imgs/uniq/pat.png')).resize((grid_size * 8, grid_size * 8)), size=(grid_size * 8, grid_size * 8))
 			piece_img = self.canvas.create_image(4 * grid_size, 4 * grid_size, image = self.imgs_cache['stale'])
-			self.turn_label.configure(text = 'Патовая ситуация')
+			self.turn_label.configure(text = _('Патовая ситуация'))
 			playsound('sound/pat.mp3')
 			
 
@@ -199,7 +203,7 @@ class Game(tk.Tk):
 			pawn_pos = None
 			if check_if_move_correct(self.board, move):
 				# made move successfull
-				self.turn_label.configure(text = 'Ходят белые' if self.board.active_player else 'Ходят черные')
+				self.turn_label.configure(text = _('Ходят белые') if self.board.active_player else _('Ходят черные'))
 				playsound('sound/press2.mp3')
 				pawn_pos = add_move_to_board(self.board, move)
 			else:
@@ -214,6 +218,7 @@ class Game(tk.Tk):
 				self.redraw(self.board.get_pieces_positions(), False)
 			if pawn_pos:
 				answer = self.pawn_change_ask(pawn_pos)
+		self.end_game('checkmate1')
 		pass
 
 
