@@ -153,7 +153,7 @@ class Game(tk.Tk):
 
 	def select_tile(self, event):
 		if self.allow_select_pieces == False:
-			playsound('sound/error.mp3')
+			#playsound('sound/error.mp3')
 			return
 		if self.turn['stage'] == 0:
 			# if its first click
@@ -166,7 +166,7 @@ class Game(tk.Tk):
 					or ((self.board.get_pieces_positions()[y][x][-1] != '1') and self.board.active_player):
 				print('wrong color')
 				return
-			playsound('sound/press1.mp3')
+			#playsound('sound/press1.mp3')
 			self.turn['stage'] = 1
 			self.redraw(self.board.get_pieces_positions(), True)
 			self.imgs_cache['selection'] = ImageTk.PhotoImage(
@@ -183,12 +183,13 @@ class Game(tk.Tk):
 			if check_if_move_correct(self.board, move):
 				# made move successfull
 				self.turn_label.configure(text = 'Ходят белые' if self.board.active_player else 'Ходят черные')
-				playsound('sound/press2.mp3')
+				#playsound('sound/press2.mp3')
 				pawn_pos = add_move_to_board(self.board, move)
 			else:
 				# incorrect move
-				playsound('sound/error.mp3')
+				#playsound('sound/error.mp3')
 				# msgbox.showerror(title='ATTENTION!', message='This move is prohibited!\nIts impossible!\n\nYOU DID BAD!')
+				1+1
 			is_ended, end_type =  check_if_end_of_game(self.board, move)
 			if is_ended:
 				self.end_game(end_type)

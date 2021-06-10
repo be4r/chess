@@ -70,10 +70,9 @@ def check_if_end_of_game(board, move):
         Проверка того, случился ли мат или пат.
     '''
     if not board.get_all_possible_moves():
-        print("HAHAHAHAHHAAHAH")
         if board.check_if_check():
             # Мат            
-            return True, 'checkmate'
+            return True, 'checkmate{}'.format(board.active_player)
         else:
             # Пат
             return True, 'stalemate'
@@ -352,7 +351,7 @@ class Board:
         if not self.king_moved[self.active_player] and not self.right_rook_moved[self.active_player] and\
             self.pieces_positions[piece_raw_ind][piece_col_ind + 1] == "empty" and\
             self.pieces_positions[piece_raw_ind][piece_col_ind + 2] == "empty" and\
-            not self.is_check_after_move(((piece_raw_ind, piece_col_ind), (piece_raw_ind, piece_col_ind))) and\
+            not self.check_if_check() and\
             not self.is_check_after_move(((piece_raw_ind, piece_col_ind), (piece_raw_ind, piece_col_ind + 1))):
             
             king_possible_moves.append(((piece_raw_ind, piece_col_ind), (piece_raw_ind, piece_col_ind + 2)))
@@ -362,7 +361,7 @@ class Board:
             self.pieces_positions[piece_raw_ind][piece_col_ind - 1] == "empty" and\
             self.pieces_positions[piece_raw_ind][piece_col_ind - 2] == "empty" and\
             self.pieces_positions[piece_raw_ind][piece_col_ind - 3] == "empty" and\
-            not self.is_check_after_move(((piece_raw_ind, piece_col_ind), (piece_raw_ind, piece_col_ind))) and\
+            not self.check_if_check() and\
             not self.is_check_after_move(((piece_raw_ind, piece_col_ind), (piece_raw_ind, piece_col_ind - 1))):
 
             king_possible_moves.append(((piece_raw_ind, piece_col_ind), (piece_raw_ind, piece_col_ind - 2)))
@@ -395,11 +394,12 @@ class Board:
         virtual_board = copy.deepcopy(self)
         # saved_pieces_positions = self.pieces_positions
         add_move_to_board(virtual_board, move)
+        virtual_board.active_player = 1 - virtual_board.active_player
         is_check = virtual_board.check_if_check()
         #self.pieces_positions = saved_pieces_positions
         return is_check
 
-    def check_if_check(self):
+    def check_if_check_prev(self):
         saved_active_player = self.active_player
         #self.active_player = 1 - self.active_player
         possible_moves = self.get_all_possible_moves(check_for_check=False)
@@ -410,7 +410,6 @@ class Board:
                 return True
         return False
 
-
     def find_king_position(self, player_id: int):
         king_full_name = "king{}".format(player_id)
         for raw_ind in range(len(self.pieces_positions)):
@@ -418,7 +417,120 @@ class Board:
                 if piece_name == king_full_name:
                     return (raw_ind, col_ind) 
 
+    def check_if_check(self):
+        king_position = self.find_king_position(self.active_player)
+        
+        # Проверить, угрожают ли королю пешки
+        pawn_step = 2 * self.active_player - 1        
+        if king_position[0] != 7 * self.active_player:
+            # Пешка слева
+            if king_position[1] != 0:
+                if self.pieces_positions[king_position[0] + pawn_step][king_position[1] - 1] == "pawn{}".format(1 - self.active_player):
+                    return True
+            # Пешка справа
+            if king_position[1] != 7:
+                if self.pieces_positions[king_position[0] + pawn_step][king_position[1] + 1] == "pawn{}".format(1 - self.active_player):
+                    return True
 
+        # Проверить, угрожают ли королю кони
+        knight_offsets = [
+                   (-1, -2), (-2, -1),
+                   (-1,  2), (-2,  1),
+                   ( 1,  2), ( 2,  1),
+                   ( 1, -2), ( 2, -1)
+                  ]
+        
+        for raw_offset, col_offset in knight_offsets:
+            new_raw_ind = king_position[0] + raw_offset
+            new_col_ind = king_position[1] + col_offset
+            if 0 <= new_raw_ind <= 7 and 0 <= new_col_ind <= 7:
+                if self.pieces_positions[new_raw_ind][new_col_ind] == "knight{}".format(1 - self.active_player):
+                    return True
+
+        # Првоерить, угрожают ли королю ладьи (и королевы по вертикальному и боковому направлениям)
+        
+        # Проверить все поля, находящиеся ниже короля
+        for current_raw_ind in range(king_position[0] + 1, 8):
+            if self.pieces_positions[current_raw_ind][king_position[1]] == "rook{}".format(1 - self.active_player) or\
+                self.pieces_positions[current_raw_ind][king_position[1]] == "queen{}".format(1 - self.active_player):
+                return True
+            elif self.pieces_positions[current_raw_ind][king_position[1]] == "empty":
+                pass
+            else:
+                break
+        # Проверить все поля, находящиеся выше короля
+        for current_raw_ind in range(king_position[0] - 1, -1, -1):
+            if self.pieces_positions[current_raw_ind][king_position[1]] == "rook{}".format(1 - self.active_player) or\
+                self.pieces_positions[current_raw_ind][king_position[1]] == "queen{}".format(1 - self.active_player):
+                return True
+            elif self.pieces_positions[current_raw_ind][king_position[1]] == "empty":
+                pass
+            else:
+                break
+
+        # Проверить все поля, находящиеся правее короля
+        for current_col_ind in range(king_position[1] + 1, 8):
+            if self.pieces_positions[king_position[0]][current_col_ind] == "rook{}".format(1 - self.active_player) or\
+                self.pieces_positions[king_position[0]][current_col_ind] == "queen{}".format(1 - self.active_player):
+                return True
+            elif self.pieces_positions[king_position[0]][current_col_ind] == "empty":
+                pass
+            else:
+                break
+
+        # Проверить все поля, находящиеся правее короля
+        for current_col_ind in range(king_position[1] - 1, -1, -1):
+            if self.pieces_positions[king_position[0]][current_col_ind] == "rook{}".format(1 - self.active_player) or\
+                self.pieces_positions[king_position[0]][current_col_ind] == "queen{}".format(1 - self.active_player):
+                return True
+            elif self.pieces_positions[king_position[0]][current_col_ind] == "empty":
+                pass
+            else:
+                break
+
+        # Проверить, угрожают ли королю слоны (и королевы по диагональным направлениям) 
+
+        # Проверить все поля, находящиеся выше-слева короля
+        for offset in range(-1, -1 * min(king_position[0], king_position[1]) - 1, -1):
+            if self.pieces_positions[king_position[0] + offset][king_position[1] + offset] == "bishop{}".format(1 - self.active_player) or\
+                self.pieces_positions[king_position[0] + offset][king_position[1] + offset] == "queen{}".format(1 - self.active_player):
+                return True
+            elif self.pieces_positions[king_position[0] + offset][king_position[1] + offset] == "empty":
+                pass
+            else:
+                break
+
+        # Проверить все поля, находящиеся ниже-справа короля
+        for offset in range(-1, -1 * min(7 - king_position[0], 7 - king_position[1]) - 1, -1):
+            if self.pieces_positions[king_position[0] - offset][king_position[1] - offset] == "bishop{}".format(1 - self.active_player) or\
+                self.pieces_positions[king_position[0] - offset][king_position[1] - offset] == "queen{}".format(1 - self.active_player):
+                return True
+            elif self.pieces_positions[king_position[0] - offset][king_position[1] - offset] == "empty":
+                pass
+            else:
+                break
+
+        # Проверить все поля, находящиеся ниже-слева короля
+        for offset in range(-1, -1 * min(7 - king_position[0], king_position[1]) - 1, -1):
+            if self.pieces_positions[king_position[0] - offset][king_position[1] + offset] == "bishop{}".format(1 - self.active_player) or\
+                self.pieces_positions[king_position[0] - offset][king_position[1] + offset] == "queen{}".format(1 - self.active_player):
+                return True
+            elif self.pieces_positions[king_position[0] - offset][king_position[1] + offset] == "empty":
+                pass
+            else:
+                break
+
+        # Проверить все поля, находящиеся выше-справа короля
+        for offset in range(-1, -1 * min(king_position[0], 7 - king_position[1]) - 1, -1):
+            if self.pieces_positions[king_position[0] + offset][king_position[1] - offset] == "bishop{}".format(1 - self.active_player) or\
+                self.pieces_positions[king_position[0] + offset][king_position[1] - offset] == "queen{}".format(1 - self.active_player):
+                return True
+            elif self.pieces_positions[king_position[0] + offset][king_position[1] - offset] == "empty":
+                pass
+            else:
+                break
+        
+        return False
 
 
 
