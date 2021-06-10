@@ -1,7 +1,10 @@
 '''
 The module that manages frontend: all the drwaings and prettyness
+
 :copyright: (c) copyleft (R), 2021
+
 :license: GNU GPL
+
 '''
 import os, sys 
 sys.path.append(os.path.dirname(os.path.realpath(__file__)))
@@ -31,8 +34,10 @@ gettext.install('chess', localedir = 'po')
 def playsound(filename):
 	'''
 	Plays sound asynchronically (now thats not an easy word sorry for misspelling 2lazy2google)
+
 	:param filename: name of sound file to play
-	returns None
+
+	:return: None
 	'''
 	return #cos there are problems with sound
 	try:
@@ -47,7 +52,9 @@ class Game(tk.Tk):
 	def __init__(self):
 		'''
 		Constructor
+
 		:param self: because this is methor
+
 		:return: idk nothing
 		'''
 		super().__init__()
@@ -76,10 +83,12 @@ class Game(tk.Tk):
 
 	def redraw(self, board, active):
 		'''
-		Redrawd board-field
+		Draw whole board-field
 
 		:param board: matrix of chess figures
 		:param active: type `bool`
+		
+		:return: None
 		'''
 		# delete old
 		for i in self.canvas.find_all():
@@ -106,6 +115,15 @@ class Game(tk.Tk):
 	
 
 	def image_draw(self, piece, coords, active):
+		'''
+		Draw single piece
+
+		:param piece: Which piece should be drawn
+		:param coords: Where should it be drawn
+		:param active: Should it highlight onmouseover
+
+		:return: None
+		'''
 		if not self.imgs_cache.get(piece):
 			# if not already cached, load img
 			pieces_imgs = {'rook0':'rook_white.png', 'knight0':'knight_white.png', 
@@ -134,6 +152,11 @@ class Game(tk.Tk):
 		self.canvas.grid()
 
 	def pawn_change_ask(self, pos):
+		'''
+		When pawn reaches most distant line (1 for white and 8 for black), it should be changed into another figure. This visualises `dialog popup` to interract with user on this topic.
+		:param pos: Which pawn is changing
+		:return: None
+		'''
 		self.allow_select_pieces = False
 		# graphical stuff
 		self.turn_label.configure(text =  _('Выберите фигуру:'))
@@ -147,6 +170,10 @@ class Game(tk.Tk):
 		rook = self.canvas.create_image(5.75 * grid_size, 3.5 * grid_size, image = self.imgs_cache['rook%d' % q], anchor = 'nw')
 		# callback on figure choice
 		def set_answer(answer):
+			'''
+			Subfunction for returning which piece was chosen by user.
+			:param answer: Its the piece name
+			'''
 			for i in self.canvas.find_all()[-5:]:
 				self.canvas.delete(i)
 			self.turn_label.configure(text = _('Ходят белые') if not self.board.active_player else _('Ходят черные'))
@@ -162,6 +189,11 @@ class Game(tk.Tk):
 		self.canvas.tag_bind(rook, '<Button-1>', lambda e: set_answer('rook'))
 
 	def end_game(self, end_type):
+		'''
+		Ends the game: pretty win/lose img, sound, stops user interaction
+
+		:param ent_type: How did it end? (White checkmate / black checkmate / stalemate)
+		'''
 		print('WIN!')
 		self.allow_select_pieces = False
 		if end_type == 'checkmate0':
@@ -190,6 +222,10 @@ class Game(tk.Tk):
 			
 
 	def select_tile(self, event):
+		'''
+		This happend when user has clicked somewhere on the board, preferably on one of his figures
+		:param event: Mouse click event
+		'''
 		if self.allow_select_pieces == False:
 			playsound('error.mp3')
 			return
@@ -239,6 +275,9 @@ class Game(tk.Tk):
 
 
 	def start(self):
+		'''
+		Start the game. Takes no parameters, returns nothing
+		'''
 		self.mainloop()
 
 if __name__ == '__main__':

@@ -1,5 +1,5 @@
 the frontend
 ============
 
- .. automodule:: main
+ .. automodule:: chess.main
     :members:
