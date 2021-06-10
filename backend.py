@@ -80,7 +80,7 @@ def check_if_end_of_game(board, move):
 
 
 class Board:
-    def __init__(self, debug=True):
+    def __init__(self, debug=False):
         '''
             Инициализация доски. Фигуры располагаются в порядке, установленном
             правилами шахмат (от 15 века нашей эры).
