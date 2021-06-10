@@ -1,5 +1,5 @@
-the backend library
-===================
+Бэкенд
+======
 
 .. automodule:: chess.backend
     :members:

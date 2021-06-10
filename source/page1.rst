@@ -1,27 +1,28 @@
 Some docs
 ===========
-This is chess. The module consists of two submodules:
+Шахматы. Это шахматы. Проект состоит из 2 модулей:
 
 .. toctree::
    backend-docs
    frontend-docs
 
-Frontend is the part that interracts with user, manages graphics and sound.
-Backend is the brain of this whole thing.
+Фронтенд - часть, с которой взаимодействует пользователь. Реализует графику и немного звук.
 
-Can be run as a module
+Бэкенд - "мозг" всей операции, реализует логику самой игры.
+
+Запускать это все дело можно модулем:
 
 .. code-block:: python
 
 	python3 -m chess
 
-directly
+напрямую:
 
 .. code-block:: python
 
 	python3 ./chess/main.py
 
-or even from another file:
+или даже из другого файла:
 
 .. code-block:: python
 	:emphasize-lines: 0
@@ -32,7 +33,7 @@ or even from another file:
 
 
 
-Also license:
+А тут лицензия:
 
 .. toctree::
    license
