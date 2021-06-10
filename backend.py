@@ -3,8 +3,8 @@
 
 Этот модуль содержит функции и класс, реализующие бэкэнд-составляющую проекта.
 Здесь вы можете найти реализацию класса Board, соответствующего виртуальной шахматной доске.
-Другие имеющиеся функции нужны для взаимодействия с классом Board. 
- 
+Другие имеющиеся функции нужны для взаимодействия с классом Board.
+
 """
 
 import copy
@@ -12,7 +12,12 @@ import copy
 
 def check_if_move_correct(board, move):
     """
-    Проверка корректности хода, сделанного пользователем
+    Проверка корректности хода.
+
+    :param board: Виртуальная шахматная доска в некотором состоянии игры. Объект класса Board
+    :param move: Проверяемый на корректность ход. Объект класса tuple, формат следующий ((prev_raw, prev_col), (new_raw, new_col))
+
+    :return: True, если ход корректный, False --- иначе
     """
     all_possible_moves = board.get_all_possible_moves()
     if board.debug:
@@ -23,13 +28,19 @@ def check_if_move_correct(board, move):
 
 
 def add_move_to_board(board, move):
-    '''
-        Добавление одного хода на доску. Предполагается, что этот ход корректен.
-        В данной функции нет проверки корректности хода.
-        Функция также проверяет, дошла ли какая-либо пешка на данном ходе до "дамок".
-        Если дошла, то функция возвращает
-        координаты этой пешки. Если ни одна пешка до "дамок" не дошла, то возвращается None
-    '''
+    """
+    Добавление одного хода на доску. Предполагается, что этот ход корректен.
+
+    В данной функции нет проверки корректности хода.
+    Функция также проверяет, дошла ли какая-либо пешка на данном ходе до "дамок".
+    Если дошла, то функция возвращает
+    координаты этой пешки. Если ни одна пешка до "дамок" не дошла, то возвращается None.
+
+    :param board: Виртуальная шахматная доска в некотором состоянии игры. Объект класса Board
+    :param move: Совершаемый ход. Объект класса tuple, формат следующий ((prev_raw, prev_col), (new_raw, new_col))
+
+    :return: True, если на совершённом ходу пешка дошла до "дамок", False --- иначе
+    """
     # Поддержание состояний короля и ладий. Потребуется для проверки корректности рокировки
     if board.pieces_positions[move[0][0]][move[0][1]][:-1] == "king":
         board.king_moved[board.active_player] = True
@@ -66,6 +77,14 @@ def add_move_to_board(board, move):
 
 
 def check_king_castling(board, move):
+    """
+    Проверка того, является ли ход рокировкой.
+
+    :param board: Виртуальная шахматная доска в некотором состоянии игры. Объект класса Board
+    :param move: Проверяемый ход. Объект класса tuple, формат следующий ((prev_raw, prev_col), (new_raw, new_col))
+
+    :return: True, если ход является рокировкой, False --- иначе
+    """
     if board.pieces_positions[move[1][0]][move[1][1]][:-1] == "king" and \
             abs(move[0][1] - move[1][1]) == 2:
         return True
@@ -73,6 +92,14 @@ def check_king_castling(board, move):
 
 
 def check_pawn_extramove(board, move):
+    """
+    Проверка того, является ли ход взятием пешки пешкой на проходе.
+
+    :param board: Виртуальная шахматная доска в некотором состоянии игры. Объект класса Board
+    :param move: Проверяемый ход. Объект класса tuple, формат следующий ((prev_raw, prev_col), (new_raw, new_col))
+
+    :return: True, если ход является взятием пешки на проходе, False --- иначе
+    """
     if board.pieces_positions[move[0][0]][move[1][1]] == "pawn{}".format(1 - board.active_player) and \
             board.previous_move[0] == (move[0][0] + 2 * (2 * board.active_player - 1), move[1][1]) and \
             board.previous_move[1] == (move[0][0], move[1][1]):
@@ -81,9 +108,16 @@ def check_pawn_extramove(board, move):
 
 
 def check_if_end_of_game(board, move):
-    '''
-        Проверка того, случился ли мат или пат.
-    '''
+    """
+    Проверка того, завершилась ли игра матом или патом.
+
+    :param board: Виртуальная шахматная доска в некотором состоянии игры. Объект класса Board
+    :param move: Проверяемый ход. Объект класса tuple, формат следующий ((prev_raw, prev_col), (new_raw, new_col))
+
+    :return: True, checkmate{i} --- если игра завершилась матом и выиграл i-й игрок.
+             True, stalemate --- если игра завершилась патом.
+             False, None --- если игра не завершилась.
+    """
     if not board.get_all_possible_moves():
         if board.check_if_check():
             # Мат
@@ -95,11 +129,18 @@ def check_if_end_of_game(board, move):
 
 
 class Board:
+    """Класс, реализующий виртуальную шахматную доску."""
+
     def __init__(self, debug=False):
-        '''
-            Инициализация доски. Фигуры располагаются в порядке, установленном
-            правилами шахмат (от 15 века нашей эры).
-        '''
+        """
+        Инициализация доски.
+
+        Фигуры располагаются в порядке, установленном правилами шахмат (от 15 века нашей эры).
+
+        :param debug: Флаг вывода дебаг-текста. По дефолту дебаг-вывод отключен.
+
+        :return: None
+        """
         self.pieces_positions = []
 
         # Добавление чёрных фигур
@@ -125,6 +166,11 @@ class Board:
         self.left_rook_moved = [False, False]
 
     def check_pawns(self):
+        """
+        Проверка того, дошла ли хотя бы одна пешка до "дамок" на текущем ходу.
+
+        :return: None
+        """
         last_raw_ind = 7 * self.active_player
         for col_ind in range(8):
             if self.pieces_positions[last_raw_ind][col_ind] == "pawn{}".format(self.active_player):
@@ -135,9 +181,14 @@ class Board:
         return None
 
     def change_piece(self, position, new_piece_name):
-        '''
-            Замена фигуры на другую фигуру того же цвета.
-        '''
+        """
+        Замена фигуры на другую фигуру того же цвета.
+
+        :param position: Координаты на виртуальной доске фигуры, которую нужно заменить
+        :param new_piece_name: Название фигуры, на которую нужно заменить текущую фигуру.
+
+        :return: None
+        """
         prev_piece_name = self.pieces_positions[position[0]][position[1]]
         if prev_piece_name == "empty":
             print("На данной позиции нет фигуры!")
@@ -148,6 +199,14 @@ class Board:
             self.pieces_positions[position[0]][position[1]] = new_piece_name + prev_piece_name[-1]
 
     def change_pawn(self, position, new_piece_name):
+        """
+        Замена пешки на слона, коня, ладью или королеву того же цвета.
+
+        :param position: Координаты на виртуальной доске пешки, которую нужно заменить
+        :param new_piece_name: Название фигуры, на которую нужно заменить пешку.
+
+        :return: None
+        """
         if new_piece_name == "queen" or new_piece_name == "rook" or new_piece_name == "bishop" or \
                 new_piece_name == "knight":
             self.change_piece(position, new_piece_name)
@@ -156,13 +215,25 @@ class Board:
             print("Её можно заменить только на королеву (queen), ладью (rook), слона (bishop) и коня (knight).")
 
     def get_pieces_positions(self):
+        """
+        Получение координат позиций всех фигур на виртуальной шахматной доске.
+
+        :return: Список списков, имитирующий двумерный массив. Каждая клетка содержит название фигуры и
+                 принадлежность этой фигуры к одному из игроков. Если фигуры на данной клетке нет, то там написано "empty".
+        """
         return self.pieces_positions
 
     def get_all_possible_moves(self, check_for_check=True):
-        '''
-            Вычисление всех возможных ходов, которые может сделать игрок.
-            Учитывается положение фигур на доске и очерёдность хода игроков.
-        '''
+        """
+        Вычисление всех возможных ходов, которые может сделать игрок.
+
+        Учитывается положение фигур на доске и очерёдность хода игроков.
+
+        :param check_for_check: Проверять ли, есть ли шах на доске в данный момент.
+
+        :return: Список всевозможных ходов при текущем состоянии доски.
+                 Ход --- объект класса tuple, формат следующий ((prev_raw, prev_col), (new_raw, new_col))
+        """
         all_possible_moves = []
         for piece_raw_ind in range(len(self.pieces_positions)):
             for piece_col_ind, piece_name in enumerate(self.pieces_positions[piece_raw_ind]):
@@ -174,14 +245,22 @@ class Board:
                                  str, piece_raw_ind:
                                  int, piece_col_ind:
                                  int, check_for_check=True):
-        '''
-            Вычисление всех возможных ходов заданной фигуры.
-            Учитывается то, что:
-            * фигура может поставить шах
-            * фигура, переместившись, может поставить своего короля под шах
-            * фигуры не могут прыгать через другие фигуры (кроме коней --- они могут)
+        """
+        Вычисление всех возможных ходов заданной фигуры.
 
-        '''
+        Учитывается то, что:
+        * фигура может поставить шах
+        * фигура, переместившись, может поставить своего короля под шах
+        * фигуры не могут прыгать через другие фигуры (кроме коней --- они могут)
+
+        :param piece_name: Название фигуры.
+        :param piece_raw_ind: Координата строки, в которой располагается фигура.
+        :param piece_col_ind: Координата столбца, в котором располагается фигура.
+        :param check_for_check: Проверять ли, есть ли шах на доске в данный момент.
+
+        :return: Список всевозможных ходов при текущем состоянии доски.
+                 Ход --- объект класса tuple, формат следующий ((prev_raw, prev_col), (new_raw, new_col))
+        """
         if piece_name == "empty":
             return []
         if int(piece_name[-1]) != self.active_player:
@@ -214,6 +293,15 @@ class Board:
     def get_pawn_possible_moves(self, piece_raw_ind:
                                 int, piece_col_ind:
                                 int):
+        """
+        Вычисление всех возможных ходов пешки.
+
+        :param piece_raw_ind: Координата строки, в которой располагается пешка.
+        :param piece_col_ind: Координата столбца, в котором располагается пешка.
+
+        :return: Список всевозможных ходов текущей пешки при текущем состоянии доски.
+                 Ход --- объект класса tuple, формат следующий ((prev_raw, prev_col), (new_raw, new_col))
+        """
         pawn_possible_moves = []
         pawn_step = self.active_player * 2 - 1
 
@@ -249,6 +337,15 @@ class Board:
     def get_rook_possible_moves(self, piece_raw_ind:
                                 int, piece_col_ind:
                                 int):
+        """
+        Вычисление всех возможных ходов ладьи.
+
+        :param piece_raw_ind: Координата строки, в которой располагается ладья.
+        :param piece_col_ind: Координата столбца, в котором располагается ладья.
+
+        :return: Список всевозможных ходов текущей ладьи при текущем состоянии доски.
+                 Ход --- объект класса tuple, формат следующий ((prev_raw, prev_col), (new_raw, new_col))
+        """
         rook_possible_moves = []
 
         # Проверить все поля, находящиеся ниже ладьи
@@ -296,6 +393,15 @@ class Board:
     def get_bishop_possible_moves(self, piece_raw_ind:
                                   int, piece_col_ind:
                                   int):
+        """
+        Вычисление всех возможных ходов слона.
+
+        :param piece_raw_ind: Координата строки, в которой располагается слон.
+        :param piece_col_ind: Координата столбца, в котором располагается слон.
+
+        :return: Список всевозможных ходов текущего слона при текущем состоянии доски.
+                 Ход --- объект класса tuple, формат следующий ((prev_raw, prev_col), (new_raw, new_col))
+        """
         bishop_possible_moves = []
 
         # Проверить все поля, находящиеся выше-слева слона
@@ -343,6 +449,15 @@ class Board:
     def get_queen_possible_moves(self, piece_raw_ind:
                                  int, piece_col_ind:
                                  int):
+        """
+        Вычисление всех возможных ходов королевы.
+
+        :param piece_raw_ind: Координата строки, в которой располагается королева.
+        :param piece_col_ind: Координата столбца, в котором располагается королева.
+
+        :return: Список всевозможных ходов текущей королевы при текущем состоянии доски.
+                 Ход --- объект класса tuple, формат следующий ((prev_raw, prev_col), (new_raw, new_col))
+        """
         queen_possible_moves = []
         queen_possible_moves += self.get_rook_possible_moves(piece_raw_ind, piece_col_ind)
         queen_possible_moves += self.get_bishop_possible_moves(piece_raw_ind, piece_col_ind)
@@ -351,6 +466,15 @@ class Board:
     def get_king_possible_moves(self, piece_raw_ind:
                                 int, piece_col_ind:
                                 int):
+        """
+        Вычисление всех возможных ходов короля.
+
+        :param piece_raw_ind: Координата строки, в которой располагается король.
+        :param piece_col_ind: Координата столбца, в котором располагается король.
+
+        :return: Список всевозможных ходов короля при текущем состоянии доски.
+                 Ход --- объект класса tuple, формат следующий ((prev_raw, prev_col), (new_raw, new_col))
+        """
         offsets = [
             (-1, -1), (-1, 0), (-1, 1),
             (0, -1), (0, 1),
@@ -390,6 +514,15 @@ class Board:
     def get_knight_possible_moves(self, piece_raw_ind:
                                   int, piece_col_ind:
                                   int):
+        """
+        Вычисление всех возможных ходов коня.
+
+        :param piece_raw_ind: Координата строки, в которой располагается конь.
+        :param piece_col_ind: Координата столбца, в котором располагается конь.
+
+        :return: Список всевозможных ходов текущего коня при текущем состоянии доски.
+                 Ход --- объект класса tuple, формат следующий ((prev_raw, prev_col), (new_raw, new_col))
+        """
         offsets = [
             (-1, -2), (-2, -1),
             (-1, 2), (-2, 1),
@@ -408,22 +541,27 @@ class Board:
         return knight_possible_moves
 
     def is_check_after_move(self, move: tuple):
+        """
+        Проверка того, будет ли на доске шах после совершения заданного хода.
+
+        :param move: Ход --- объект класса tuple, формат следующий ((prev_raw, prev_col), (new_raw, new_col))
+
+        :return: True, если после заданного хода на доске будет шах, False --- иначе
+        """
         virtual_board = copy.deepcopy(self)
         add_move_to_board(virtual_board, move)
         virtual_board.active_player = 1 - virtual_board.active_player
         is_check = virtual_board.check_if_check()
         return is_check
 
-    def check_if_check_prev(self):
-        saved_active_player = self.active_player
-        possible_moves = self.get_all_possible_moves(check_for_check=False)
-        king_position = self.find_king_position(1 - saved_active_player)
-        for move in possible_moves:
-            if move[1] == king_position:
-                return True
-        return False
-
     def find_king_position(self, player_id: int):
+        """
+        Поиск координат позиции короля на доске.
+
+        :param player_id: 0, если ищется белый король, 1, если чёрный.
+
+        :return: Координаты найденного короля. Объект класса tuple.
+        """
         king_full_name = "king{}".format(player_id)
         for raw_ind in range(len(self.pieces_positions)):
             for col_ind, piece_name in enumerate(self.pieces_positions[raw_ind]):
@@ -431,6 +569,11 @@ class Board:
                     return (raw_ind, col_ind)
 
     def check_if_check(self):
+        """
+        Проверка наличия шаха на доске.
+
+        :return: True, если на доске есть шах, False --- иначе.
+        """
         king_position = self.find_king_position(self.active_player)
 
         # Проверить, угрожают ли королю пешки
