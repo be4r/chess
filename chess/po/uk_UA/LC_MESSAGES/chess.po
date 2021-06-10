@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-06-10 22:09+0300\n"
+"POT-Creation-Date: 2021-06-11 00:13+0300\n"
 "PO-Revision-Date: 2021-06-10 13:39+0300\n"
 "Last-Translator: BE4R <EMAIL@ADDRESS>\n"
 "Language: uk_UA\n"
@@ -17,41 +17,41 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.9.1\n"
+"Generated-By: Babel 2.6.0\n"
 
-#: main.py:75 main.py:193 main.py:277
+#: chess/main.py:75 chess/main.py:190 chess/main.py:266
 msgid "Ходят белые"
 msgstr "Бiлi ходять"
 
-#: main.py:173
+#: chess/main.py:169
 msgid "Выберите фигуру:"
 msgstr "Оберiть фiгуру:"
 
-#: main.py:193 main.py:277
+#: chess/main.py:190 chess/main.py:266
 msgid "Ходят черные"
 msgstr "Чорнi ходять"
 
-#: main.py:217
+#: chess/main.py:213
 msgid "winRU.png"
 msgstr "winUA.png"
 
-#: main.py:221
+#: chess/main.py:216
 msgid "Победа!"
 msgstr "Перемога!"
 
-#: main.py:225
+#: chess/main.py:219
 msgid "loseRU.png"
 msgstr "loseUA.png"
 
-#: main.py:228
+#: chess/main.py:221
 msgid "Поражение . . . . . . . "
 msgstr "Ви зазнали поразки . . ."
 
-#: main.py:232
+#: chess/main.py:224
 msgid "pat.png"
 msgstr ""
 
-#: main.py:235
+#: chess/main.py:227
 msgid "Патовая ситуация"
 msgstr "Патова сiтуацiя"
 
