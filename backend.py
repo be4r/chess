@@ -70,10 +70,9 @@ def check_if_end_of_game(board, move):
         Проверка того, случился ли мат или пат.
     '''
     if not board.get_all_possible_moves():
-        print("HAHAHAHAHHAAHAH")
         if board.check_if_check():
             # Мат            
-            return True, 'checkmate'
+            return True, 'checkmate{}'.format(board.active_player)
         else:
             # Пат
             return True, 'stalemate'
