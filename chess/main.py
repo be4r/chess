@@ -196,6 +196,7 @@ class Game(tk.Tk):
 		'''
 		print('WIN!')
 		self.allow_select_pieces = False
+		end_type = 'checkmate0'
 		if end_type == 'checkmate0':
 			self.imgs_cache['win'] = ImageTk.PhotoImage(
 					Image.open(_('%s/uniq/winRU.png' % imgs_path)).resize(
