@@ -6,7 +6,7 @@ The module that manages frontend: all the drwaings and prettyness
 
 import tkinter as tk
 import tkinter.font as font
-import tkinter.messagebox as msgbox
+#import tkinter.messagebox as msgbox
 from threading import Thread
 #from playsound import playsound as play_sound
 from PIL import Image, ImageTk
@@ -52,6 +52,7 @@ class Game(tk.Tk):
 		self.imgs_cache = {}
 		self.imgs = []
 		self.turn = {'stage': 0, 'x': 0, 'y': 0}
+		self.is_check = False
 
 		self.board = Board()
 		self.redraw(self.board.get_pieces_positions(), False)
@@ -70,6 +71,22 @@ class Game(tk.Tk):
 		for i, line in enumerate(board):
 			for j, piece in enumerate(line):
 				self.image_draw(piece, (j, i), active)
+				# check
+				if piece == 'king%d' % int(self.board.active_player):
+					if self.board.check_if_check():
+						if not self.is_check:
+							playsound('sound/check.mp3')
+							self.is_check = True
+						# load check img
+						self.imgs_cache['check'] = ImageTk.PhotoImage(
+								Image.open('imgs/uniq/check.png').resize((grid_size,grid_size)), size=(grid_size,grid_size))
+						self.check_img = self.canvas.create_image(j * grid_size, i * grid_size, 
+								image = self.imgs_cache['check'], anchor = 'nw')
+						self.canvas.tag_bind(self.check_img, '<Button-1>', lambda e: self.select_tile(e))
+					else:
+						self.is_check = False
+						# self.canvas.delete(self.check_img)
+	
 
 	def image_draw(self, piece, coords, active):
 		if not self.imgs_cache.get(piece):
@@ -153,7 +170,7 @@ class Game(tk.Tk):
 
 	def select_tile(self, event):
 		if self.allow_select_pieces == False:
-			#playsound('sound/error.mp3')
+			playsound('sound/error.mp3')
 			return
 		if self.turn['stage'] == 0:
 			# if its first click
@@ -162,11 +179,11 @@ class Game(tk.Tk):
 			y = self.turn['y'] = event.y // grid_size
 			# mark selected
 			# if selected white on black turn or other side around
-			if ((self.board.get_pieces_positions()[y][x][-1] != '0') and not self.board.active_player) 
-					or ((self.board.get_pieces_positions()[y][x][-1] != '1') and self.board.active_player):
+			if (((self.board.get_pieces_positions()[y][x][-1] != '0') and not self.board.active_player)
+				or ((self.board.get_pieces_positions()[y][x][-1] != '1') and self.board.active_player)):
 				print('wrong color')
 				return
-			#playsound('sound/press1.mp3')
+			playsound('sound/press1.mp3')
 			self.turn['stage'] = 1
 			self.redraw(self.board.get_pieces_positions(), True)
 			self.imgs_cache['selection'] = ImageTk.PhotoImage(
@@ -183,35 +200,18 @@ class Game(tk.Tk):
 			if check_if_move_correct(self.board, move):
 				# made move successfull
 				self.turn_label.configure(text = 'Ходят белые' if self.board.active_player else 'Ходят черные')
-				#playsound('sound/press2.mp3')
+				playsound('sound/press2.mp3')
 				pawn_pos = add_move_to_board(self.board, move)
 			else:
 				# incorrect move
-				#playsound('sound/error.mp3')
+				playsound('sound/error.mp3')
 				# msgbox.showerror(title='ATTENTION!', message='This move is prohibited!\nIts impossible!\n\nYOU DID BAD!')
-				1+1
 			is_ended, end_type =  check_if_end_of_game(self.board, move)
 			if is_ended:
 				self.end_game(end_type)
 			else:
 				# redraw and stuff
 				self.redraw(self.board.get_pieces_positions(), False)
-				print(self.board.check_if_check())
-				if self.board.check_if_check():
-					print('IF CHECK!')
-					# load check img
-					self.imgs_cache['check'] = ImageTk.PhotoImage(
-							Image.open('imgs/uniq/check.png').resize((grid_size,grid_size)), size=(grid_size,grid_size))
-					# find king
-					piece = 'king%d' % int(self.board.active_player)
-					for x, line in enumerate(self.board.get_pieces_positions()):
-						for y, i in enumerate(line):
-							if i == piece:
-								self.check_img = self.canvas.create_image(x * grid_size, y * grid_size, 
-										image = self.imgs_cache['check'], anchor = 'nw')
-				#else:
-				#	self.canvas.delete(self.check_img)
-					# draw uniq/check on king
 			if pawn_pos:
 				answer = self.pawn_change_ask(pawn_pos)
 		pass
