@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-06-10 14:31+0300\n"
+"POT-Creation-Date: 2021-06-10 22:09+0300\n"
 "PO-Revision-Date: 2021-06-10 13:13+0300\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: ru\n"
@@ -19,41 +19,51 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.9.1\n"
 
-#: main.py:48 main.py:138 main.py:205
+#: main.py:75 main.py:193 main.py:277
 msgid "Ходят белые"
 msgstr ""
 
-#: main.py:125
+#: main.py:173
 msgid "Выберите фигуру:"
 msgstr ""
 
-#: main.py:138 main.py:205
+#: main.py:193 main.py:277
 msgid "Ходят черные"
 msgstr ""
 
-#: main.py:155
-#, fuzzy
-msgid "imgs/uniq/winRU.png"
-msgstr "imgs/uniq/winRU.png"
+#: main.py:217
+msgid "winRU.png"
+msgstr ""
 
-#: main.py:158
+#: main.py:221
 msgid "Победа!"
 msgstr ""
 
-#: main.py:162
-#, fuzzy
-msgid "imgs/uniq/loseRU.png"
-msgstr "imgs/uniq/loseRU.png"
+#: main.py:225
+msgid "loseRU.png"
+msgstr ""
 
-#: main.py:164
+#: main.py:228
 msgid "Поражение . . . . . . . "
 msgstr ""
 
-#: main.py:168
-msgid "imgs/uniq/pat.png"
+#: main.py:232
+msgid "pat.png"
 msgstr ""
 
-#: main.py:170
+#: main.py:235
 msgid "Патовая ситуация"
 msgstr ""
+
+#~ msgid "imgs/uniq/winRU.png"
+#~ msgstr "imgs/uniq/winRU.png"
+
+#~ msgid "imgs/uniq/loseRU.png"
+#~ msgstr "imgs/uniq/loseRU.png"
+
+#~ msgid "imgs/uniq/pat.png"
+#~ msgstr ""
+
+#~ msgid "%s/uniq/%s"
+#~ msgstr ""
 
