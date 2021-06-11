@@ -143,14 +143,16 @@ class Game(tk.Tk):
             piece_orig_img_path = '%s/orig/%s' % (imgs_path, pieces_imgs[piece])
             piece_active_img_path = '%s/selected/%s' % (imgs_path, pieces_imgs[piece])
             img1 = ImageTk.PhotoImage(Image.open(piece_orig_img_path).resize((grid_size, grid_size)), size=(grid_size, grid_size))
-            img2 = ImageTk.PhotoImage(Image.open(piece_active_img_path).resize((grid_size, grid_size)), size=(grid_size, grid_size))
-            self.imgs_cache[piece] = img1
-            self.imgs_cache['%s_selected' % piece] = img2
+            img2 = ImageTk.PhotoImage(Image.open(piece_orig_img_path + '.png').resize((grid_size, grid_size)), size=(grid_size, grid_size))
+            img3 = ImageTk.PhotoImage(Image.open(piece_active_img_path).resize((grid_size, grid_size)), size=(grid_size, grid_size))
+            self.imgs_cache[piece] = (img1, img2)
+            self.imgs_cache['%s_selected' % piece] = img3
         # draw cached
+        q = (coords[0] + coords[1]) % 2
         if active:
-            piece_img = self.canvas.create_image(coords[0] * grid_size, coords[1] * grid_size, anchor='nw', image=self.imgs_cache[piece], activeimage=self.imgs_cache['%s_selected' % piece])
+            piece_img = self.canvas.create_image(coords[0] * grid_size, coords[1] * grid_size, anchor='nw', image=self.imgs_cache[piece][q], activeimage=self.imgs_cache['%s_selected' % piece])
         else:
-            piece_img = self.canvas.create_image(coords[0] * grid_size, coords[1] * grid_size, anchor='nw', image=self.imgs_cache[piece])
+            piece_img = self.canvas.create_image(coords[0] * grid_size, coords[1] * grid_size, anchor='nw', image=self.imgs_cache[piece][q])
         self.imgs.append(piece)
         # bind onclick event
         self.canvas.tag_bind(piece_img, '<Button-1>', lambda e: self.select_tile(e))
@@ -192,7 +194,6 @@ class Game(tk.Tk):
             self.board.change_pawn(pos, answer)
             # redraw
             self.redraw(self.board.get_pieces_positions(), False)
-            print(answer, pos)
         # veshayem callback
         self.canvas.tag_bind(queen, '<Button-1>', lambda e: set_answer('queen'))
         self.canvas.tag_bind(bishop, '<Button-1>', lambda e: set_answer('bishop'))
@@ -246,7 +247,6 @@ class Game(tk.Tk):
             # mark selected
             # if selected white on black turn or other side around
             if (((self.board.get_pieces_positions()[y][x][-1] != '0') and not self.board.active_player) or ((self.board.get_pieces_positions()[y][x][-1] != '1') and self.board.active_player)):
-                print('wrong color')
                 return
             playsound('press1.mp3')
             self.turn['stage'] = 1
@@ -258,7 +258,6 @@ class Game(tk.Tk):
             # if its second click, send MOVE to backend
             self.turn['stage'] = 0
             move = ((self.turn['y'], self.turn['x']), (event.y // grid_size, event.x // grid_size))
-            print('trying ', move)
 
             pawn_pos = None
             if check_if_move_correct(self.board, move):
