@@ -1,4 +1,4 @@
-install: sphinx babel docker
+install: deps sphinx babel docker
 
 run:
 	docker run -e LANGUAGE="$(lang)" -it --rm --user=$(id -u $USER):$(id -g $USER) --env="DISPLAY" --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" --device /dev/snd the_chess_game
@@ -8,7 +8,7 @@ COMPILED=chess/po/en/LC_MESSAGES/chess.mo chess/po/ru/LC_MESSAGES/chess.mo chess
 SOURCES=$(COMPILED:.mo=.po)
 
 deps:
-	 apt update && env DEBIAN_FRONTEND="noninteractive" apt -y install git python3 python3-pip python3-sphinx python3-tk python3-babel python3-pil.imagetk docker.io python3-venv && pip3 install playsound
+	 apt update && env DEBIAN_FRONTEND="noninteractive" apt install -y git python3 python3-pip python3-sphinx python3-tk python3-babel python3-pil.imagetk docker.io python3-venv && pip3 install playsound
 
 docker:
 	xhost +
