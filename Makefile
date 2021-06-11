@@ -1,4 +1,4 @@
-install: deps sphinx babel docker
+install: sphinx babel docker
 
 run:
 	docker run -e LANGUAGE="$(lang)" -it --rm --user=$(id -u $USER):$(id -g $USER) --env="DISPLAY" --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" --device /dev/snd the_chess_game
