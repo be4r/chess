@@ -703,5 +703,4 @@ class Board:
                 if self.pieces_positions[new_raw_ind][new_col_ind][:-1] == "king":
                     return True
 
-
         return False
