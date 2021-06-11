@@ -1,7 +1,7 @@
 """Тест обнаружения мата на доске."""
 
 import unittest
-from backend import Board, add_move_to_board, check_if_end_of_game
+from chess.backend import Board, add_move_to_board, check_if_end_of_game
 
 
 class CheckMateTest(unittest.TestCase):

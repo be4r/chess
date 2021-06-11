@@ -1,7 +1,7 @@
 """Тест функции, вычисляющей возможные ходы фигур."""
 
 import unittest
-from backend import Board, add_move_to_board
+from chess.backend import Board, add_move_to_board
 
 
 class CheckMateTest(unittest.TestCase):

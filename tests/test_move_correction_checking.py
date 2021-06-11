@@ -1,7 +1,7 @@
 """Тест функции, проверяющей корректность хода."""
 
 import unittest
-from backend import Board, check_if_move_correct, add_move_to_board
+from chess.backend import Board, check_if_move_correct, add_move_to_board
 
 
 class MoveCheckFunctionTest(unittest.TestCase):

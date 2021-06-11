@@ -1,7 +1,7 @@
 """Тест корректных движений пешки."""
 
 import unittest
-from backend import Board, check_if_move_correct
+from chess.backend import Board, check_if_move_correct
 
 
 class PawnMoveTest(unittest.TestCase):
