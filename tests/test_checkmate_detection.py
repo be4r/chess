@@ -23,7 +23,6 @@ class CheckMateTest(unittest.TestCase):
         add_move_to_board(self.board, ((0, 3), (4, 7)))
 
         is_end = check_if_end_of_game(self.board, None)
-        print(is_end)
         self.assertTrue(is_end[0])
         self.assertEqual(is_end[1][:-1], "checkmate")
 

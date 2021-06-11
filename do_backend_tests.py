@@ -5,4 +5,4 @@
 """
 
 import os
-os.system("python -m unittest -v tests/test*")
+os.system("python -m unittest tests/test*")
