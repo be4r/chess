@@ -60,7 +60,8 @@ def add_move_to_board(board, move):
 
     # Дополнительные действия для обработки рокировки
     if check_king_castling(board, move):
-        print("CASTLING")
+        if board.debug:
+            print("CASTLING")
         if move[0][1] < move[1][1]:
             # Случай короткой рокировки
             add_move_to_board(board, ((7 * (1 - board.active_player), 7), (7 * (1 - board.active_player), 5)))
