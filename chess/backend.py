@@ -60,8 +60,7 @@ def add_move_to_board(board, move):
 
     # Дополнительные действия для обработки рокировки
     if check_king_castling(board, move):
-        if board.debug:
-            print("CASTLING")
+        print("CASTLING")
         if move[0][1] < move[1][1]:
             # Случай короткой рокировки
             add_move_to_board(board, ((7 * (1 - board.active_player), 7), (7 * (1 - board.active_player), 5)))
@@ -688,5 +687,21 @@ class Board:
                 pass
             else:
                 break
+
+        # Проверить, угрожает ли королю другой король
+
+        king_offsets = [
+            (-1, -1), (-1, 0), (-1, 1),
+            (0, -1), (0, 1),
+            (1, -1), (1, 0), (1, 1)
+        ]
+
+        for raw_offset, col_offset in king_offsets:
+            new_raw_ind = king_position[0] + raw_offset
+            new_col_ind = king_position[1] + col_offset
+            if 0 <= new_raw_ind <= 7 and 0 <= new_col_ind <= 7:
+                if self.pieces_positions[new_raw_ind][new_col_ind][:-1] == "king":
+                    return True
+
 
         return False
